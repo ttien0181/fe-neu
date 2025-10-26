@@ -6,7 +6,7 @@ import { AuthRequest, DecodedToken } from '../types';
 
 interface AuthContextType {
   token: string | null;
-  user: { username: string; roles: string[] } | null;
+  user: { username: string; roles: string[]; userId: number; } | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
   login: (credentials: AuthRequest) => Promise<void>;
@@ -34,7 +34,7 @@ function decodeJwt(token: string): DecodedToken | null {
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('authToken'));
-  const [user, setUser] = useState<{ username: string; roles: string[] } | null>(null);
+  const [user, setUser] = useState<{ username: string; roles: string[]; userId: number; } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -42,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (token) {
       const decoded = decodeJwt(token);
       if (decoded && decoded.exp * 1000 > Date.now()) {
-        setUser({ username: decoded.sub, roles: decoded.roles || [] });
+        setUser({ username: decoded.sub, roles: decoded.roles || [], userId: decoded.userId });
       } else {
         localStorage.removeItem('authToken');
         setToken(null);
@@ -58,7 +58,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('authToken', newToken);
     const decoded = decodeJwt(newToken);
     if (decoded) {
-      setUser({ username: decoded.sub, roles: decoded.roles || [] });
+      setUser({ username: decoded.sub, roles: decoded.roles || [], userId: decoded.userId });
     }
     setToken(newToken);
     navigate('/');
@@ -75,7 +75,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     token,
     user,
     isAuthenticated: !!token && !!user,
-    isAdmin: user?.roles.includes('ADMIN') ?? false,
+    // Fix: Wrapped logical OR in parentheses to resolve mixed operator error ('||' and '??').
+    isAdmin: (user?.roles.includes('ADMIN') || user?.roles.includes('ROLE_ADMIN')) ?? false,
     login,
     logout,
     isLoading

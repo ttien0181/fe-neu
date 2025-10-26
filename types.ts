@@ -31,6 +31,7 @@ export interface DecodedToken {
   roles: string[];
   iat: number;
   exp: number;
+  userId: number; // Added userId
 }
 
 

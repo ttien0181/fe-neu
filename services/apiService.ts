@@ -1,5 +1,5 @@
 
-import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogResponse } from '../types';
+import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse } from '../types';
 
 const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
@@ -83,7 +83,9 @@ export const deleteCaseTag = (id: number): Promise<null> => fetchApi<null>(`/cas
 // Case Files
 export const getCaseFiles = (): Promise<CaseFileResponse[]> => fetchApi<CaseFileResponse[]>('/casefiles');
 export const createCaseFile = (data: CaseFileRequest): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>('/casefiles', { method: 'POST', body: JSON.stringify(data) });
+export const updateCaseFile = (id: number, data: Partial<CaseFileRequest>): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>(`/casefiles/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deleteCaseFile = (id: number): Promise<null> => fetchApi<null>(`/casefiles/${id}`, { method: 'DELETE' });
 
 // Audit Logs
 export const getAuditLogs = (): Promise<AuditLogResponse[]> => fetchApi<AuditLogResponse[]>('/auditlogs');
+export const createAuditLog = (data: AuditLogRequest): Promise<AuditLogResponse> => fetchApi<AuditLogResponse>('/auditlogs', { method: 'POST', body: JSON.stringify(data) });

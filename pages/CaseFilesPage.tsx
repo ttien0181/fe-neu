@@ -3,9 +3,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { CaseFileResponse, CaseFileRequest, CaseResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Select, Spinner, PlusIcon, DeleteIcon, Label, Input } from '../components/ui';
+import { Button, Modal, Select, Spinner, PlusIcon, DeleteIcon, Label, Input, EditIcon } from '../components/ui';
 
-const CaseFileForm: React.FC<{
+// Form for ADDING a new file (includes file upload)
+const CaseFileAddForm: React.FC<{
   cases: CaseResponse[];
   onSubmit: (data: CaseFileRequest, file: File) => void;
   onCancel: () => void;
@@ -35,7 +36,6 @@ const CaseFileForm: React.FC<{
             return;
         }
         if (!caseId) {
-            // This should not happen if cases exist
             return;
         }
         const requestData: CaseFileRequest = {
@@ -72,6 +72,51 @@ const CaseFileForm: React.FC<{
     );
 };
 
+// Form for EDITING file metadata
+const CaseFileEditForm: React.FC<{
+  initialData: CaseFileResponse;
+  cases: CaseResponse[];
+  onSubmit: (data: Partial<CaseFileRequest>) => void;
+  onCancel: () => void;
+}> = ({ initialData, cases, onSubmit, onCancel }) => {
+    const [formData, setFormData] = useState({
+        fileName: initialData.fileName,
+        caseId: initialData.caseId.toString()
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSubmit({
+            fileName: formData.fileName,
+            caseId: Number(formData.caseId)
+        });
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <Label htmlFor="fileName">File Name</Label>
+                <Input id="fileName" name="fileName" value={formData.fileName} onChange={handleChange} required />
+            </div>
+            <div>
+                <Label htmlFor="caseId">Case</Label>
+                <Select id="caseId" name="caseId" value={formData.caseId} onChange={handleChange} required>
+                    {cases.map(c => <option key={c.id} value={c.id}>{c.caseName}</option>)}
+                </Select>
+            </div>
+            <div className="flex justify-end gap-4 pt-4">
+                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
+                <Button type="submit">Save Changes</Button>
+            </div>
+        </form>
+    );
+};
+
 
 const CaseFilesPage: React.FC = () => {
     const [files, setFiles] = useState<CaseFileResponse[]>([]);
@@ -79,7 +124,8 @@ const CaseFilesPage: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const { isAdmin } = useAuth();
+    const [editingFile, setEditingFile] = useState<CaseFileResponse | null>(null);
+    const { isAdmin, user } = useAuth();
 
     const fetchData = useCallback(async () => {
         try {
@@ -99,18 +145,44 @@ const CaseFilesPage: React.FC = () => {
         fetchData();
     }, [fetchData]);
 
-    const handleCloseModal = () => setIsModalOpen(false);
+    const handleOpenModal = (file: CaseFileResponse | null = null) => {
+        setEditingFile(file);
+        setIsModalOpen(true);
+    };
 
-    const handleFormSubmit = async (data: CaseFileRequest, file: File) => {
-        // NOTE: The current API spec does not handle file uploads, only metadata.
-        // This function will send the metadata as per the spec.
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingFile(null);
+    };
+
+    const handleAddSubmit = async (data: CaseFileRequest, file: File) => {
         try {
+            // NOTE: In a real app, you would upload the `file` object here.
             await api.createCaseFile(data);
-            // In a real app, you would upload the `file` object here.
             handleCloseModal();
             fetchData();
         } catch (err: any) {
             setError(err.message || 'Failed to add file record.');
+        }
+    };
+
+    const handleEditSubmit = async (data: Partial<CaseFileRequest>) => {
+        if (!editingFile || !user) return;
+        try {
+            const updatedFile = await api.updateCaseFile(editingFile.id, data);
+            
+            // Explicitly create audit log as requested
+            await api.createAuditLog({
+                userId: user.userId,
+                action: `UPDATE_FILE: User updated file '${updatedFile.fileName}'`,
+                fileId: updatedFile.id,
+                caseId: updatedFile.caseId,
+            });
+
+            handleCloseModal();
+            fetchData();
+        } catch (err: any) {
+             setError(err.message || 'Failed to update file record.');
         }
     };
 
@@ -131,7 +203,7 @@ const CaseFilesPage: React.FC = () => {
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-3xl font-bold text-white">Manage Case Files</h1>
-                {isAdmin && <Button onClick={() => setIsModalOpen(true)}><PlusIcon/> Add New File</Button>}
+                {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New File</Button>}
             </div>
 
             {error && <p className="text-red-500 bg-red-900/50 p-3 rounded-md mb-4">{error}</p>}
@@ -156,7 +228,8 @@ const CaseFilesPage: React.FC = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{file.filePath}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{file.fileType}</td>
                                     {isAdmin && (
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                                            <button onClick={() => handleOpenModal(file)} className="text-blue-400 hover:text-blue-300"><EditIcon/></button>
                                             <button onClick={() => handleDelete(file.id)} className="text-red-500 hover:text-red-400"><DeleteIcon /></button>
                                         </td>
                                     )}
@@ -167,12 +240,21 @@ const CaseFilesPage: React.FC = () => {
                 </div>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title="Add New Case File">
-                <CaseFileForm
-                    cases={cases}
-                    onSubmit={handleFormSubmit}
-                    onCancel={handleCloseModal}
-                />
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingFile ? 'Edit Case File' : 'Add New Case File'}>
+               {editingFile ? (
+                   <CaseFileEditForm 
+                        initialData={editingFile}
+                        cases={cases}
+                        onSubmit={handleEditSubmit}
+                        onCancel={handleCloseModal}
+                   />
+               ) : (
+                   <CaseFileAddForm
+                        cases={cases}
+                        onSubmit={handleAddSubmit}
+                        onCancel={handleCloseModal}
+                    />
+               )}
             </Modal>
         </div>
     );
