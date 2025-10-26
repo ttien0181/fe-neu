@@ -85,3 +85,48 @@ export interface PersonResponse {
   role: PersonRole;
   contactInfo: string;
 }
+
+// CaseTag
+export interface CaseTagRequest {
+  tagName: string;
+}
+
+export interface CaseTagResponse {
+  id: number;
+  tagName: string;
+}
+
+// CaseFile
+export interface CaseFileRequest {
+  caseId: number;
+  fileName: string;
+  filePath: string;
+  fileType: string;
+  uploadedBy?: number; // Optional as backend might infer from token
+}
+
+export interface CaseFileResponse {
+  id: number;
+  caseId: number;
+  fileName: string;
+  filePath: string;
+  fileType: string;
+  uploadedBy: number;
+}
+
+// AuditLog
+export interface AuditLogRequest {
+  userId: number;
+  action: string;
+  caseId?: number;
+  fileId?: number;
+}
+
+export interface AuditLogResponse {
+  id: number;
+  userId: number;
+  action: string;
+  caseId: number | null;
+  fileId: number | null;
+  createdAt: string; // Timestamp string
+}

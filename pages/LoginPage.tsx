@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Card, Input } from '../components/ui';
+import { Button, Card, Input, Label } from '../components/ui';
 
 const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
@@ -30,7 +30,7 @@ const LoginPage: React.FC = () => {
           <h2 className="text-3xl font-bold text-center text-white mb-6">Case Management Login</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-400 mb-1">Username</label>
+              <Label htmlFor="username">Username</Label>
               <Input
                 id="username"
                 type="text"
@@ -41,7 +41,7 @@ const LoginPage: React.FC = () => {
               />
             </div>
             <div>
-              <label htmlFor="password-input" className="block text-sm font-medium text-gray-400 mb-1">Password</label>
+              <Label htmlFor="password-input">Password</Label>
               <Input
                 id="password-input"
                 type="password"

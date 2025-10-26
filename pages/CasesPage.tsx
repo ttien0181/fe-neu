@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { CaseResponse, CaseRequest, CategoryResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Input, Textarea, Select, Spinner, PlusIcon, EditIcon, DeleteIcon } from '../components/ui';
+import { Button, Modal, Input, Textarea, Select, Spinner, PlusIcon, EditIcon, DeleteIcon, Label } from '../components/ui';
 
 const CaseForm: React.FC<{
   initialData: CaseRequest | null;
@@ -26,30 +26,30 @@ const CaseForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Case Name</label>
-                <Input name="caseName" value={formData.caseName} onChange={handleChange} required />
+                <Label htmlFor="caseName">Case Name</Label>
+                <Input id="caseName" name="caseName" value={formData.caseName} onChange={handleChange} required />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-                <Textarea name="caseDescription" value={formData.caseDescription || ''} onChange={handleChange} />
+                <Label htmlFor="caseDescription">Description</Label>
+                <Textarea id="caseDescription" name="caseDescription" value={formData.caseDescription || ''} onChange={handleChange} />
             </div>
              <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Category</label>
-                <Select name="categoryId" value={formData.categoryId} onChange={handleChange} required>
+                <Label htmlFor="categoryId">Category</Label>
+                <Select id="categoryId" name="categoryId" value={formData.categoryId} onChange={handleChange} required>
                     {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                 </Select>
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
-                <Input name="status" value={formData.status || ''} onChange={handleChange} />
+                <Label htmlFor="status">Status</Label>
+                <Input id="status" name="status" value={formData.status || ''} onChange={handleChange} />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Court Name</label>
-                <Input name="courtName" value={formData.courtName || ''} onChange={handleChange} />
+                <Label htmlFor="courtName">Court Name</Label>
+                <Input id="courtName" name="courtName" value={formData.courtName || ''} onChange={handleChange} />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Location</label>
-                <Input name="location" value={formData.location || ''} onChange={handleChange} />
+                <Label htmlFor="location">Location</Label>
+                <Input id="location" name="location" value={formData.location || ''} onChange={handleChange} />
             </div>
             <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>

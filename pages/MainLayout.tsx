@@ -16,6 +16,9 @@ const Sidebar = () => {
         <NavLink to="/cases" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Cases</NavLink>
         <NavLink to="/categories" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Categories</NavLink>
         <NavLink to="/persons" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Persons</NavLink>
+        <NavLink to="/case-tags" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Case Tags</NavLink>
+        <NavLink to="/case-files" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Case Files</NavLink>
+        <NavLink to="/audit-logs" className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}>Audit Logs</NavLink>
       </nav>
       <div className="mt-auto">
         <div className="text-sm text-gray-400">Signed in as</div>

@@ -8,6 +8,9 @@ import DashboardPage from './pages/DashboardPage';
 import CasesPage from './pages/CasesPage';
 import CategoriesPage from './pages/CategoriesPage';
 import PersonsPage from './pages/PersonsPage';
+import CaseTagsPage from './pages/CaseTagsPage';
+import CaseFilesPage from './pages/CaseFilesPage';
+import AuditLogsPage from './pages/AuditLogsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -30,6 +33,9 @@ function App() {
             <Route path="cases" element={<CasesPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="persons" element={<PersonsPage />} />
+            <Route path="case-tags" element={<CaseTagsPage />} />
+            <Route path="case-files" element={<CaseFilesPage />} />
+            <Route path="audit-logs" element={<AuditLogsPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

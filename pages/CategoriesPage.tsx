@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { CategoryResponse, CategoryRequest } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Input, Textarea, Spinner, PlusIcon, EditIcon, DeleteIcon } from '../components/ui';
+import { Button, Modal, Input, Textarea, Spinner, PlusIcon, EditIcon, DeleteIcon, Label } from '../components/ui';
 
 const CategoryForm: React.FC<{
   initialData: CategoryRequest | null;
@@ -25,12 +25,12 @@ const CategoryForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Category Name</label>
-                <Input name="name" value={formData.name} onChange={handleChange} required />
+                <Label htmlFor="name">Category Name</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Description</label>
-                <Textarea name="description" value={formData.description || ''} onChange={handleChange} />
+                <Label htmlFor="description">Description</Label>
+                <Textarea id="description" name="description" value={formData.description || ''} onChange={handleChange} />
             </div>
             <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>

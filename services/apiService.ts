@@ -1,5 +1,5 @@
 
-import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse } from '../types';
+import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogResponse } from '../types';
 
 const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
@@ -73,3 +73,17 @@ export const getPersonById = (id: number): Promise<PersonResponse> => fetchApi<P
 export const createPerson = (data: PersonRequest): Promise<PersonResponse> => fetchApi<PersonResponse>('/persons', { method: 'POST', body: JSON.stringify(data) });
 export const updatePerson = (id: number, data: PersonRequest): Promise<PersonResponse> => fetchApi<PersonResponse>(`/persons/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deletePerson = (id: number): Promise<null> => fetchApi<null>(`/persons/${id}`, { method: 'DELETE' });
+
+// Case Tags
+export const getCaseTags = (): Promise<CaseTagResponse[]> => fetchApi<CaseTagResponse[]>('/case-tags');
+export const createCaseTag = (data: CaseTagRequest): Promise<CaseTagResponse> => fetchApi<CaseTagResponse>('/case-tags', { method: 'POST', body: JSON.stringify(data) });
+export const updateCaseTag = (id: number, data: CaseTagRequest): Promise<CaseTagResponse> => fetchApi<CaseTagResponse>(`/case-tags/${id}`, { method: 'PUT', body: JSON.stringify(data) });
+export const deleteCaseTag = (id: number): Promise<null> => fetchApi<null>(`/case-tags/${id}`, { method: 'DELETE' });
+
+// Case Files
+export const getCaseFiles = (): Promise<CaseFileResponse[]> => fetchApi<CaseFileResponse[]>('/casefiles');
+export const createCaseFile = (data: CaseFileRequest): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>('/casefiles', { method: 'POST', body: JSON.stringify(data) });
+export const deleteCaseFile = (id: number): Promise<null> => fetchApi<null>(`/casefiles/${id}`, { method: 'DELETE' });
+
+// Audit Logs
+export const getAuditLogs = (): Promise<AuditLogResponse[]> => fetchApi<AuditLogResponse[]>('/auditlogs');

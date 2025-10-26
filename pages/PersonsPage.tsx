@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { PersonResponse, PersonRequest, PersonRole } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Input, Select, Spinner, PlusIcon, EditIcon, DeleteIcon } from '../components/ui';
+import { Button, Modal, Input, Select, Spinner, PlusIcon, EditIcon, DeleteIcon, Label } from '../components/ui';
 
 const PersonForm: React.FC<{
   initialData: PersonRequest | null;
@@ -25,20 +25,20 @@ const PersonForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Full Name</label>
-                <Input name="name" value={formData.name} onChange={handleChange} required />
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Role</label>
-                <Select name="role" value={formData.role} onChange={handleChange} required>
+                <Label htmlFor="role">Role</Label>
+                <Select id="role" name="role" value={formData.role} onChange={handleChange} required>
                     {Object.values(PersonRole).map(role => (
                         <option key={role} value={role}>{role.charAt(0).toUpperCase() + role.slice(1)}</option>
                     ))}
                 </Select>
             </div>
             <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Contact Info</label>
-                <Input name="contactInfo" value={formData.contactInfo || ''} onChange={handleChange} />
+                <Label htmlFor="contactInfo">Contact Info</Label>
+                <Input id="contactInfo" name="contactInfo" value={formData.contactInfo || ''} onChange={handleChange} />
             </div>
             <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>

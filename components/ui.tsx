@@ -27,6 +27,12 @@ export const Button: React.FC<ButtonProps> = ({ variant = 'primary', children, .
   return <button className={`${baseClasses} ${variantClasses[variant]}`} {...props}>{children}</button>;
 };
 
+// --- Label ---
+interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}
+export const Label: React.FC<LabelProps> = (props) => {
+    return <label className="block text-sm font-medium text-gray-400 mb-1" {...props} />;
+};
+
 // --- Input ---
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 export const Input: React.FC<InputProps> = (props) => {
