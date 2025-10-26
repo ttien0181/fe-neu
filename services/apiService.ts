@@ -1,20 +1,32 @@
-
 import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse } from '../types';
 
 const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken');
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-    ...options.headers,
-  };
+  const headers: HeadersInit = { ...options.headers };
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+  // Do not set Content-Type for FormData, browser does it automatically with boundary
+  if (options.body && !(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  // const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
+  
+  console.log("DEBUG upload endpoint:", endpoint);
+  console.log("DEBUG upload headers:", headers);
+  console.log("DEBUG upload body type:", options.body instanceof FormData ? 'FormData' : typeof options.body);
+
+
+  const response = await fetch(`${BASE_URL}${endpoint}`, {
+    method: options.method || 'GET',
+    headers,
+    body: options.body,
+  });
 
   if (response.status === 204) {
     return null as T;
@@ -82,7 +94,7 @@ export const deleteCaseTag = (id: number): Promise<null> => fetchApi<null>(`/cas
 
 // Case Files
 export const getCaseFiles = (): Promise<CaseFileResponse[]> => fetchApi<CaseFileResponse[]>('/casefiles');
-export const createCaseFile = (data: CaseFileRequest): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>('/casefiles', { method: 'POST', body: JSON.stringify(data) });
+export const createCaseFile = (data: FormData): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>('/casefiles', { method: 'POST', body: data });
 export const updateCaseFile = (id: number, data: Partial<CaseFileRequest>): Promise<CaseFileResponse> => fetchApi<CaseFileResponse>(`/casefiles/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 export const deleteCaseFile = (id: number): Promise<null> => fetchApi<null>(`/casefiles/${id}`, { method: 'DELETE' });
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { CaseFileResponse, CaseFileRequest, CaseResponse } from '../types';
@@ -157,8 +156,17 @@ const CaseFilesPage: React.FC = () => {
 
     const handleAddSubmit = async (data: CaseFileRequest, file: File) => {
         try {
-            // NOTE: In a real app, you would upload the `file` object here.
-            await api.createCaseFile(data);
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('caseId', data.caseId.toString());
+            formData.append('fileName', data.fileName);
+            formData.append('filePath', data.filePath);
+            formData.append('fileType', data.fileType);
+            if (user?.userId) {
+                formData.append('uploadedBy', user.userId.toString());
+            }
+
+            await api.createCaseFile(formData);
             handleCloseModal();
             fetchData();
         } catch (err: any) {
