@@ -1,5 +1,5 @@
 {
-  "name": "Legal Case Management System",
-  "description": "A comprehensive dashboard for managing legal cases, categories, persons, and related data. This application provides role-based access for viewing and managing case information.",
+  "name": "LegalFlow - Modern Case Management",
+  "description": "A clean and modern web application for managing legal cases, categories, and related information efficiently.",
   "requestFramePermissions": []
 }

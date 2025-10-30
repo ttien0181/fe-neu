@@ -1,5 +1,5 @@
-
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Card, Input, Label } from '../components/ui';
 
@@ -24,10 +24,11 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div className="max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-background pt-20 px-4">
+      <div className="max-w-md w-full mx-auto">
         <Card>
-          <h2 className="text-3xl font-bold text-center text-white mb-6">Case Management Login</h2>
+          <h2 className="text-3xl font-bold text-center text-primary mb-2">Welcome Back</h2>
+          <p className="text-center text-secondary mb-8">Sign in to access your dashboard.</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="username">Username</Label>
@@ -53,10 +54,16 @@ const LoginPage: React.FC = () => {
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div>
-              <Button type="submit" className="w-full justify-center" disabled={isLoading}>
+              <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </div>
+            <p className="text-center text-sm text-secondary">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-medium text-accent hover:text-accent-hover">
+                    Sign Up
+                </Link>
+            </p>
           </form>
         </Card>
       </div>

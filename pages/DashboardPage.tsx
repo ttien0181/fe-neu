@@ -1,13 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { getCases, getCategories, getPersons } from '../services/apiService';
 import { useAuth } from '../contexts/AuthContext';
 import { Card, Spinner } from '../components/ui';
 
 const StatCard: React.FC<{ title: string; value: string | number; }> = ({ title, value }) => (
-    <Card className="text-center">
-        <p className="text-4xl font-bold text-blue-400">{value}</p>
-        <h3 className="text-lg font-semibold text-gray-400 mt-2">{title}</h3>
+    <Card className="text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+        <p className="text-5xl font-bold text-accent">{value}</p>
+        <h3 className="text-lg font-semibold text-secondary mt-2">{title}</h3>
     </Card>
 );
 
@@ -42,8 +41,8 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Welcome back, {user?.username}!</h1>
-            <p className="text-gray-400 mb-8">Here's a quick overview of your legal case system.</p>
+            <h1 className="text-4xl font-bold text-primary mb-2">Welcome back, {user?.username}!</h1>
+            <p className="text-secondary mb-8">Here's a quick overview of your system.</p>
             {loading ? (
                  <div className="flex justify-center items-center h-64">
                     <Spinner />

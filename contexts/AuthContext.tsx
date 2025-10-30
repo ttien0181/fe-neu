@@ -61,21 +61,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser({ username: decoded.sub, roles: decoded.roles || [], userId: decoded.userId });
     }
     setToken(newToken);
-    navigate('/');
+    navigate('/app/dashboard');
   }, [navigate]);
 
   const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('authToken');
-    navigate('/login');
+    navigate('/');
   }, [navigate]);
 
   const value = useMemo(() => ({
     token,
     user,
     isAuthenticated: !!token && !!user,
-    // Fix: Wrapped logical OR in parentheses to resolve mixed operator error ('||' and '??').
     isAdmin: (user?.roles.includes('ADMIN') || user?.roles.includes('ROLE_ADMIN')) ?? false,
     login,
     logout,

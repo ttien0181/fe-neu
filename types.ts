@@ -65,6 +65,8 @@ export interface CaseResponse {
   courtName: string;
   location: string;
   categoryId: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // Person

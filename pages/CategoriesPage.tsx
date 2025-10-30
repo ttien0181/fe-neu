@@ -1,9 +1,9 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
-import { CategoryResponse, CategoryRequest } from '../types';
+import { CategoryResponse, CategoryRequest, CaseResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Input, Textarea, Spinner, PlusIcon, EditIcon, DeleteIcon, Label } from '../components/ui';
+import { Button, Modal, Input, Textarea, Spinner, PlusIcon, EditIcon, DeleteIcon, Label, Card } from '../components/ui';
 
 const CategoryForm: React.FC<{
   initialData: CategoryRequest | null;
@@ -40,13 +40,71 @@ const CategoryForm: React.FC<{
     );
 };
 
-const CategoriesPage: React.FC = () => {
+
+const CategoryDetail: React.FC<{ categoryId: string }> = ({ categoryId }) => {
+    const [category, setCategory] = useState<CategoryResponse | null>(null);
+    const [cases, setCases] = useState<CaseResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const categoryData = await api.getCategoryById(Number(categoryId));
+                setCategory(categoryData);
+                const allCases = await api.getCases();
+                setCases(allCases.filter(c => c.categoryId === Number(categoryId)));
+            } catch (e) {
+                setError("Failed to load category details.");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [categoryId]);
+
+    if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
+    if (error) return <p className="text-red-500">{error}</p>;
+    if (!category) return <p>Category not found.</p>;
+
+    return (
+        <div>
+            <Link to="/app/categories" className="text-accent hover:underline mb-6 inline-block">&larr; Back to all categories</Link>
+            <h1 className="text-4xl font-bold text-primary mb-2">{category.name}</h1>
+            <p className="text-secondary mb-8">{category.description}</p>
+            
+            <Card>
+                <h2 className="text-2xl font-semibold mb-4">Cases in this Category</h2>
+                {cases.length > 0 ? (
+                    <div className="divide-y divide-border">
+                        {cases.map(caseItem => (
+                            <div key={caseItem.id} className="py-3 flex justify-between items-center">
+                                <div>
+                                    <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
+                                    <p className="text-sm text-secondary">{caseItem.courtName}</p>
+                                </div>
+                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Details</Link>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-secondary">No cases found in this category.</p>
+                )}
+            </Card>
+        </div>
+    );
+};
+
+
+const CategoryList: React.FC = () => {
     const [categories, setCategories] = useState<CategoryResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const { isAdmin } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingCategory, setEditingCategory] = useState<CategoryResponse | null>(null);
-    const { isAdmin } = useAuth();
 
     const fetchCategories = useCallback(async () => {
         try {
@@ -100,43 +158,50 @@ const CategoriesPage: React.FC = () => {
         }
     };
 
+    const filteredCategories = useMemo(() => {
+        return categories.filter(cat => cat.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }, [categories, searchTerm]);
+
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-white">Manage Categories</h1>
-                {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Category</Button>}
+                <h1 className="text-3xl font-bold text-primary">Manage Categories</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Category</Button>}
             </div>
 
-            {error && <p className="text-red-500 bg-red-900/50 p-3 rounded-md mb-4">{error}</p>}
+            <div className="mb-6">
+                <Input 
+                    placeholder="Search by category name..." 
+                    value={searchTerm} 
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                />
+            </div>
+
+            {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
-                <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
-                    <table className="min-w-full">
-                        <thead className="bg-gray-700">
-                            <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Description</th>
-                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-700">
-                            {categories.map(category => (
-                                <tr key={category.id} className="hover:bg-gray-700/50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{category.name}</td>
-                                    <td className="px-6 py-4 text-sm text-gray-300">{category.description}</td>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCategories.map(category => (
+                        <Card key={category.id} className="flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
+                            <div>
+                                <div className="flex justify-between items-start">
+                                    <h2 className="text-xl font-semibold text-primary mb-2 pr-2">{category.name}</h2>
                                     {isAdmin && (
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                            <button onClick={() => handleOpenModal(category)} className="text-blue-400 hover:text-blue-300"><EditIcon/></button>
-                                            <button onClick={() => handleDelete(category.id)} className="text-red-500 hover:text-red-400"><DeleteIcon /></button>
-                                        </td>
+                                        <div className="flex-shrink-0 flex items-center gap-1">
+                                            <button onClick={() => handleOpenModal(category)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
+                                            <button onClick={() => handleDelete(category.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
+                                        </div>
                                     )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                </div>
+                                <p className="text-secondary text-sm mb-4 line-clamp-3">{category.description}</p>
+                            </div>
+                            <div className="mt-4 text-right">
+                                <Link to={`/app/categories/${category.id}`} className="text-accent font-semibold hover:underline">View Details</Link>
+                            </div>
+                        </Card>
+                    ))}
                 </div>
             )}
-            
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCategory ? 'Edit Category' : 'Add New Category'}>
                 <CategoryForm
                     initialData={editingCategory}
@@ -146,6 +211,11 @@ const CategoriesPage: React.FC = () => {
             </Modal>
         </div>
     );
+};
+
+const CategoriesPage: React.FC = () => {
+    const { categoryId } = useParams<{ categoryId?: string }>();
+    return categoryId ? <CategoryDetail categoryId={categoryId} /> : <CategoryList />;
 };
 
 export default CategoriesPage;
