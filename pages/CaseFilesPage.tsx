@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { CaseFileResponse, CaseFileRequest, CaseResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Button, Modal, Select, Spinner, PlusIcon, DeleteIcon, Label, Input, EditIcon } from '../components/ui';
+import { Button, Modal, Select, Spinner, PlusIcon, DeleteIcon, Label, Input, EditIcon, Card } from '../components/ui';
 
 // Form for ADDING a new file (includes file upload)
 const CaseFileAddForm: React.FC<{
@@ -179,7 +179,6 @@ const CaseFilesPage: React.FC = () => {
         try {
             const updatedFile = await api.updateCaseFile(editingFile.id, data);
             
-            // Explicitly create audit log as requested
             await api.createAuditLog({
                 userId: user.userId,
                 action: `UPDATE_FILE: User updated file '${updatedFile.fileName}'`,
@@ -210,42 +209,47 @@ const CaseFilesPage: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-white">Manage Case Files</h1>
+                <h1 className="text-3xl font-bold text-primary">Manage Case Files</h1>
                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New File</Button>}
             </div>
 
-            {error && <p className="text-red-500 bg-red-900/50 p-3 rounded-md mb-4">{error}</p>}
+            {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
-                <div className="bg-gray-800 rounded-lg shadow overflow-hidden">
+                <Card className="overflow-x-auto">
                     <table className="min-w-full">
-                        <thead className="bg-gray-700">
+                        <thead>
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">File Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Associated Case</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Path</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Type</th>
-                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>}
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">File Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Associated Case</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Path</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Type</th>
+                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Actions</th>}
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-700">
+                        <tbody className="divide-y divide-border">
                             {files.map(file => (
-                                <tr key={file.id} className="hover:bg-gray-700/50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{file.fileName}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{getCaseName(file.caseId)}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{file.filePath}</td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{file.fileType}</td>
+                                <tr key={file.id} className="hover:bg-background">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{file.fileName}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">{getCaseName(file.caseId)}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">{file.filePath}</td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">{file.fileType}</td>
                                     {isAdmin && (
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                            <button onClick={() => handleOpenModal(file)} className="text-blue-400 hover:text-blue-300"><EditIcon/></button>
-                                            <button onClick={() => handleDelete(file.id)} className="text-red-500 hover:text-red-400"><DeleteIcon /></button>
+                                            <button onClick={() => handleOpenModal(file)} className="p-1 text-secondary hover:text-accent"><EditIcon/></button>
+                                            <button onClick={() => handleDelete(file.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
                                         </td>
                                     )}
                                 </tr>
                             ))}
+                             {files.length === 0 && (
+                                <tr>
+                                    <td colSpan={isAdmin ? 5 : 4} className="text-center py-10 text-secondary">No files found.</td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
-                </div>
+                </Card>
             )}
             
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingFile ? 'Edit Case File' : 'Add New Case File'}>

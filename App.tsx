@@ -9,6 +9,7 @@ import CategoriesPage from './pages/CategoriesPage';
 import PersonsPage from './pages/PersonsPage';
 import LandingPage from './pages/AuditLogsPage'; // Repurposed as LandingPage
 import RegisterPage from './pages/CaseTagsPage'; // Repurposed as RegisterPage
+import CaseFilesPage from './pages/CaseFilesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -88,6 +89,7 @@ function App() {
             <Route path="cases/:caseId" element={<CasesPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="categories/:categoryId" element={<CategoriesPage />} />
+            <Route path="files" element={<CaseFilesPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
