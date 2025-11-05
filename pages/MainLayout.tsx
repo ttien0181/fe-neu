@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { DashboardIcon, CasesIcon, CategoriesIcon, FolderIcon, LogoutIcon } from '../components/ui';
+import { DashboardIcon, CasesIcon, CategoriesIcon, FolderIcon, LogoutIcon, HamburgerIcon, ChevronDownIcon } from '../components/ui';
 
 const Logo = () => (
     <svg height="32" width="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -9,67 +9,120 @@ const Logo = () => (
     </svg>
 );
 
-const Sidebar: React.FC = () => {
-    const { user, isAdmin, logout } = useAuth();
-    
-    const navLinkClasses = "flex items-center gap-4 px-4 py-3 text-gray-300 rounded-lg hover:bg-gray-700 hover:text-white transition-colors";
-    const activeNavLinkClasses = "bg-accent text-white";
-
-    const navItems = [
-        { to: "/app/dashboard", icon: <DashboardIcon />, label: "Dashboard" },
-        { to: "/app/cases", icon: <CasesIcon />, label: "Cases" },
-        { to: "/app/categories", icon: <CategoriesIcon />, label: "Categories" },
-        { to: "/app/files", icon: <FolderIcon />, label: "Files" },
-    ];
-
-    return (
-        <aside className="w-64 bg-primary text-white flex flex-col flex-shrink-0">
-            <div className="h-20 flex items-center justify-center px-6 border-b border-gray-700">
-                <Link to="/app/dashboard" className="flex items-center gap-3">
-                    <Logo />
-                    <span className="text-2xl font-bold">LegalFlow</span>
-                </Link>
-            </div>
-            <nav className="flex-1 px-4 py-6 space-y-2">
-                {navItems.map(item => (
-                    <NavLink
-                        key={item.to}
-                        to={item.to}
-                        className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}
-                    >
-                        {item.icon}
-                        <span>{item.label}</span>
-                    </NavLink>
-                ))}
-            </nav>
-            <div className="px-4 py-6 border-t border-gray-700">
-                <div className="flex items-center gap-4 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold">
-                        {user?.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                        <p className="font-semibold">{user?.username}</p>
-                        <p className="text-xs text-gray-400">{isAdmin ? 'Admin' : 'User'}</p>
-                    </div>
-                </div>
-                <button 
-                    onClick={logout} 
-                    className="w-full flex items-center justify-center gap-3 px-4 py-2 text-gray-300 rounded-lg hover:bg-red-600 hover:text-white transition-colors"
-                >
-                    <LogoutIcon />
-                    <span>Logout</span>
-                </button>
-            </div>
-        </aside>
-    );
-};
+const navItems = [
+    { to: "/app/dashboard", icon: <DashboardIcon />, label: "Dashboard" },
+    { to: "/app/cases", icon: <CasesIcon />, label: "Cases" },
+    { to: "/app/categories", icon: <CategoriesIcon />, label: "Categories" },
+    { to: "/app/files", icon: <FolderIcon />, label: "Files" },
+];
 
 const MainLayout: React.FC = () => {
+    const { user, isAdmin, logout } = useAuth();
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const profileMenuRef = useRef<HTMLDivElement>(null);
+
+    const navLinkClasses = "flex items-center gap-2 px-3 py-2 text-secondary rounded-md hover:bg-background hover:text-primary transition-colors font-medium";
+    const activeNavLinkClasses = "bg-teal-50 text-accent";
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+                setIsProfileOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
+    const UserMenu = () => (
+      <div className="relative" ref={profileMenuRef}>
+        <button
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          className="flex items-center gap-2 text-left p-2 rounded-lg hover:bg-background"
+        >
+          <div className="w-9 h-9 rounded-full bg-accent text-white flex items-center justify-center font-bold">
+            {user?.username.charAt(0).toUpperCase()}
+          </div>
+          <div className="hidden md:block">
+            <p className="font-semibold text-sm">{user?.username}</p>
+            <p className="text-xs text-secondary">{isAdmin ? 'Admin' : 'User'}</p>
+          </div>
+          <ChevronDownIcon />
+        </button>
+        {isProfileOpen && (
+          <div className="absolute right-0 mt-2 w-48 bg-surface rounded-md shadow-lg border border-border z-50">
+            <div className="py-1">
+              <button
+                onClick={logout}
+                className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-background"
+              >
+                <LogoutIcon />
+                <span>Logout</span>
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+
   return (
-    <div className="flex h-screen bg-background text-primary overflow-hidden">
-      <Sidebar />
-      <main className="flex-1 overflow-y-auto">
-        <div className="container mx-auto p-8">
+    <div className="min-h-screen bg-background">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-surface/80 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center">
+              <Link to="/app/dashboard" className="flex items-center gap-3">
+                <Logo />
+                <span className="hidden sm:block text-xl font-bold text-primary">Binh An Law</span>
+              </Link>
+              <nav className="hidden lg:flex lg:ml-10 lg:space-x-4">
+                {navItems.map(item => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) => `${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}
+                  >
+                    {item.label}
+                  </NavLink>
+                ))}
+              </nav>
+            </div>
+            
+            <div className="flex items-center gap-2">
+                <UserMenu />
+                <button
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="lg:hidden p-2 rounded-md text-secondary hover:bg-background"
+                >
+                    <HamburgerIcon />
+                </button>
+            </div>
+          </div>
+        </div>
+        
+        {isMobileMenuOpen && (
+            <div className="lg:hidden bg-surface border-t border-border">
+                <nav className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                    {navItems.map(item => (
+                        <NavLink
+                            key={item.to}
+                            to={item.to}
+                            onClick={() => setIsMobileMenuOpen(false)}
+                            className={({ isActive }) => `block ${navLinkClasses} ${isActive ? activeNavLinkClasses : ''}`}
+                        >
+                           {item.icon} <span>{item.label}</span>
+                        </NavLink>
+                    ))}
+                </nav>
+            </div>
+        )}
+      </header>
+      
+      <main className="pt-20">
+        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
           <Outlet />
         </div>
       </main>

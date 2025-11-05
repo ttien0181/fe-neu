@@ -6,7 +6,7 @@ import MainLayout from './pages/MainLayout';
 import DashboardPage from './pages/DashboardPage';
 import CasesPage from './pages/CasesPage';
 import CategoriesPage from './pages/CategoriesPage';
-import PersonsPage from './pages/PersonsPage';
+import AboutPage from './pages/PersonsPage'; // Repurposed as AboutPage
 import LandingPage from './pages/AuditLogsPage'; // Repurposed as LandingPage
 import RegisterPage from './pages/CaseTagsPage'; // Repurposed as RegisterPage
 import CaseFilesPage from './pages/CaseFilesPage';
@@ -14,10 +14,10 @@ import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
-const Logo = () => (
-  <svg height="24" width="24" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-    <path fill="#14b8a6" d="M24.2,2.3c-0.2,0-0.4,0-0.5,0c-0.3,0-0.5,0.1-0.8,0.2c-11.4,2.6-18.1,13.7-15.5,25.1c2,9,9.6,15.7,18.5,16.2c0.2,0,0.3,0,0.5,0c11.8-0.6,21.3-10.4,21.3-22.3C47.6,11.8,37.2,2.4,24.2,2.3z M24,43.3C14.7,43.3,7,35.5,7,26.3c0-8.2,5.9-15.1,13.9-16.5l15.8,15.8C35.6,33.5,29.9,34.2,24,43.3z M30.9,23.3L15.1,7.5c1.4-0.6,3-1,4.6-1.1c9.4-0.5,17.2,6.8,17.2,16.2C36.9,22.8,32,23.1,30.9,23.3z"/>
-  </svg>
+const Logo = ({ className = 'h-6 w-6', color = '#14b8a6' }) => (
+    <svg className={className} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <path fill={color} d="M24.2,2.3c-0.2,0-0.4,0-0.5,0c-0.3,0-0.5,0.1-0.8,0.2c-11.4,2.6-18.1,13.7-15.5,25.1c2,9,9.6,15.7,18.5,16.2c0.2,0,0.3,0,0.5,0c11.8-0.6,21.3-10.4,21.3-22.3C47.6,11.8,37.2,2.4,24.2,2.3z M24,43.3C14.7,43.3,7,35.5,7,26.3c0-8.2,5.9-15.1,13.9-16.5l15.8,15.8C35.6,33.5,29.9,34.2,24,43.3z M30.9,23.3L15.1,7.5c1.4-0.6,3-1,4.6-1.1c9.4-0.5,17.2,6.8,17.2,16.2C36.9,22.8,32,23.1,30.9,23.3z"/>
+    </svg>
 );
 
 
@@ -26,7 +26,7 @@ const Header = () => (
     <div className="container mx-auto px-6 py-4 flex justify-between items-center">
       <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary">
         <Logo />
-        <span>LegalFlow</span>
+        <span>Binh An Law</span>
       </Link>
       <nav className="hidden md:flex items-center space-x-8">
         <NavLink to="/" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>Home</NavLink>
@@ -45,10 +45,36 @@ const Header = () => (
 );
 
 const Footer = () => (
-  <footer className="bg-surface border-t border-border">
-    <div className="container mx-auto px-6 py-8 text-center text-secondary">
-      <p>&copy; {new Date().getFullYear()} LegalFlow. All rights reserved.</p>
-      <p className="mt-2 text-sm">Modernizing Legal Case Management.</p>
+  <footer className="bg-primary text-gray-300">
+    <div className="container mx-auto px-6 py-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 text-sm">
+        <div className="mb-6 lg:mb-0 col-span-1 md:col-span-2 lg:col-span-1">
+          <Link to="/" className="flex items-center gap-3 text-xl font-bold text-white">
+            <Logo className="h-8 w-8" color="#FFFFFF" />
+            <span>Binh An Law</span>
+          </Link>
+          <p className="mt-4">Văn phòng Luật sư Quốc tế Bình An</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-white uppercase tracking-wider mb-4">Thông tin pháp lý</h3>
+          <p className="mb-1"><strong className="font-medium text-gray-100">Ngày cấp phép:</strong> 20/04/2011</p>
+          <p><strong className="font-medium text-gray-100">Cơ quan cấp:</strong> Sở Tư pháp TP. Hà Nội</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-white uppercase tracking-wider mb-4">Địa chỉ</h3>
+          <p className="mb-2"><strong className="font-medium text-gray-100">Trụ sở:</strong> 2/532 Ngọc Thụy, Tổ 19, phường Ngọc Thụy, Long Biên, TP. Hà Nội</p>
+          <p><strong className="font-medium text-gray-100">VPGD:</strong> Số 13 ngõ Hàng Bột, phường Cát Linh, quận Đống Đa, TP. Hà Nội</p>
+        </div>
+        <div>
+          <h3 className="font-semibold text-white uppercase tracking-wider mb-4">Liên hệ</h3>
+          <p className="mb-1">Tel: 04 22404068</p>
+          <p className="mb-1">Fax: 0437877913</p>
+          <p>Email: luatbinhan@gmail.com</p>
+        </div>
+      </div>
+      <div className="mt-10 pt-8 border-t border-gray-700 text-center text-sm text-gray-400">
+        <p>&copy; {new Date().getFullYear()} Binh An Law. All rights reserved.</p>
+      </div>
     </div>
   </footer>
 );
@@ -71,7 +97,7 @@ function App() {
         <Routes>
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/about" element={<PersonsPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />

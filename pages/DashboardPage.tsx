@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card, Spinner } from '../components/ui';
 import { CaseResponse, CategoryResponse } from '../types';
 import { Link } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 const StatCard: React.FC<{ title: string; value: string | number; }> = ({ title, value }) => (
     <Card className="text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -94,15 +95,28 @@ const DashboardPage: React.FC = () => {
                          <Card>
                             <h2 className="text-2xl font-semibold text-primary mb-4">Cases by Category</h2>
                             {casesByCategory.length > 0 ? (
-                               <div className="space-y-3">
-                                    {casesByCategory.map(cat => (
-                                        <div key={cat.id} className="flex justify-between items-center p-3 bg-background rounded-lg">
-                                            <p className="font-semibold text-primary">{cat.name}</p>
-                                            <p className="font-bold text-accent">{cat.count}</p>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : <p className="text-secondary">No categories found.</p>}
+                               <div className="w-full h-80">
+                                   <ResponsiveContainer>
+                                       <BarChart
+                                           data={casesByCategory}
+                                           margin={{ top: 5, right: 20, left: -10, bottom: 5 }}
+                                       >
+                                           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                                           <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
+                                           <YAxis allowDecimals={false} tick={{ fill: '#64748b' }} />
+                                           <Tooltip
+                                               cursor={{ fill: '#f1f5f9' }}
+                                               contentStyle={{
+                                                   background: '#ffffff',
+                                                   border: '1px solid #e2e8f0',
+                                                   borderRadius: '0.5rem',
+                                               }}
+                                           />
+                                           <Bar dataKey="count" fill="#14b8a6" name="Cases" />
+                                       </BarChart>
+                                   </ResponsiveContainer>
+                               </div>
+                            ) : <p className="text-secondary">No category data to display.</p>}
                         </Card>
                     </div>
                 </>
