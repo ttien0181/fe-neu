@@ -1,6 +1,6 @@
 import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse, SendVerificationCodeRequest, UserResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../types';
 
-const BASE_URL = 'http://localhost:8080/api';
+export const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken');

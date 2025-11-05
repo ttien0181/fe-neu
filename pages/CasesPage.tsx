@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
+import { BASE_URL } from '../services/apiService';
 import { CaseResponse, CaseRequest, CategoryResponse, CaseFileResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Modal, Input, Textarea, Select, Spinner, PlusIcon, EditIcon, DeleteIcon, Label, Card, DownloadIcon, EyeIcon } from '../components/ui';
-
-const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
 const CaseForm: React.FC<{
     initialData: CaseResponse | null;
