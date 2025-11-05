@@ -2,10 +2,10 @@ import React from 'react';
 
 // Image data is embedded as constants to avoid needing a separate assets folder.
 // In a real project, these would be in /assets/images/
-const image1 = 'https://storage.googleapis.com/aistudio-hosting/history/24911718/instances/30172314/image.jpg';
-const image2 = 'https://storage.googleapis.com/aistudio-hosting/history/24911718/instances/30172315/image.jpg';
-const image3 = 'https://storage.googleapis.com/aistudio-hosting/history/24911718/instances/30172316/image.jpg';
-const image4 = 'https://storage.googleapis.com/aistudio-hosting/history/24911718/instances/30172317/image.jpg';
+const image1 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6ea5b0.JPG';
+const image2 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6ec67f.JPG';
+const image3 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6efcca.JPG';
+const image4 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6efcef.JPG';
 
 const AboutPage: React.FC = () => {
   return (
