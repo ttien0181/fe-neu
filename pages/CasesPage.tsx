@@ -362,8 +362,9 @@ const CaseList: React.FC = () => {
                     formData.append('fileName', file.name);
                     formData.append('filePath', `/files/${caseId}`);
                     formData.append('fileType', 'pdf');
-                     if (user?.userId) {
-                        formData.append('uploadedBy', user.userId.toString());
+                    // Fix: Changed user.userId to user.id to match the User interface.
+                     if (user?.id) {
+                        formData.append('uploadedBy', user.id.toString());
                     }
                     return api.createCaseFile(formData);
                 });

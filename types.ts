@@ -1,4 +1,5 @@
 
+
 export interface APIResponse<T> {
   status: 'SUCCESS' | 'FAILURE' | string;
   result: T;
@@ -12,14 +13,22 @@ export interface ErrorDetail {
 }
 
 // Auth
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+}
+
 export interface AuthRequest {
   username?: string;
   password?: string;
 }
 
-export interface AuthResponse {
+export interface AuthResponse extends User {
   token: string;
 }
+
 
 export interface RegisterRequest {
   username?: string;
@@ -55,7 +64,6 @@ export interface DecodedToken {
   roles: string[];
   iat: number;
   exp: number;
-  userId: number; // Added userId
 }
 
 
@@ -94,22 +102,16 @@ export interface CaseResponse {
 }
 
 // Person
-export enum PersonRole {
-  PLAINTIFF = 'plaintiff',
-  DEFENDANT = 'defendant',
-  LAWYER = 'lawyer',
-}
-
 export interface PersonRequest {
   name: string;
-  role: PersonRole;
+  role: string;
   contactInfo?: string;
 }
 
 export interface PersonResponse {
   id: number;
   name: string;
-  role: PersonRole;
+  role: string;
   contactInfo: string;
 }
 
@@ -156,4 +158,26 @@ export interface AuditLogResponse {
   caseId: number | null;
   fileId: number | null;
   createdAt: string; // Timestamp string
+}
+
+// Question
+export interface QuestionRequest {
+  idQuestioner: number;
+  idLawyerPerson: number;
+  caseId?: number | null;
+  content: string;
+}
+
+export interface QuestionResponse {
+  id: number;
+  content: string;
+  answer: string | null;
+  questionerId: number;
+  questionerName: string;
+  lawyerId: number;
+  lawyerName: string;
+  lawyerEmail: string;
+  caseName: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

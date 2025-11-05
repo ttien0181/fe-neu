@@ -1,3 +1,5 @@
+
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate, Outlet, NavLink, Link } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -13,6 +15,9 @@ import CaseFilesPage from './pages/CaseFilesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import LawyersPage from './pages/LawyersPage';
+import QuestionsPage from './pages/QuestionsPage';
+import MyQuestionsPage from './pages/MyQuestionsPage';
 
 const Logo = ({ className = 'h-6 w-6', color = '#14b8a6' }) => (
     <svg className={className} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -29,7 +34,7 @@ const Header = () => (
         <span>Binh An Law</span>
       </Link>
       <nav className="hidden md:flex items-center space-x-8">
-        <NavLink to="/" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>Home</NavLink>
+        <NavLink to="/lawyers" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>Lawyers</NavLink>
         <NavLink to="/about" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>About</NavLink>
       </nav>
       <div className="flex items-center gap-2">
@@ -98,6 +103,7 @@ function App() {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<LandingPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/lawyers" element={<LawyersPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -118,6 +124,10 @@ function App() {
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="categories/:categoryId" element={<CategoriesPage />} />
             <Route path="files" element={<CaseFilesPage />} />
+            <Route path="lawyers" element={<LawyersPage />} />
+            <Route path="questions" element={<QuestionsPage />} />
+            <Route path="questions/:questionId" element={<QuestionsPage />} />
+            <Route path="my-questions" element={<MyQuestionsPage />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

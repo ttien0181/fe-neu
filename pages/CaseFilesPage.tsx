@@ -162,8 +162,9 @@ const CaseFilesPage: React.FC = () => {
             formData.append('fileName', data.fileName);
             formData.append('filePath', data.filePath);
             formData.append('fileType', data.fileType);
-            if (user?.userId) {
-                formData.append('uploadedBy', user.userId.toString());
+            // Fix: Changed user.userId to user.id to match the User interface.
+            if (user?.id) {
+                formData.append('uploadedBy', user.id.toString());
             }
 
             await api.createCaseFile(formData);
@@ -179,8 +180,9 @@ const CaseFilesPage: React.FC = () => {
         try {
             const updatedFile = await api.updateCaseFile(editingFile.id, data);
             
+            // Fix: Changed user.userId to user.id to match the User interface.
             await api.createAuditLog({
-                userId: user.userId,
+                userId: user.id,
                 action: `UPDATE_FILE: User updated file '${updatedFile.fileName}'`,
                 fileId: updatedFile.id,
                 caseId: updatedFile.caseId,
