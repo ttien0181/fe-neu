@@ -48,7 +48,8 @@ const CaseForm: React.FC<{
         setFileError('');
         if (e.target.files) {
             const addedFiles = Array.from(e.target.files);
-            const pdfFiles = addedFiles.filter(file => file.type === 'application/pdf');
+            // Fix: Explicitly type 'file' as 'File' to resolve error "Property 'type' does not exist on type 'unknown'".
+            const pdfFiles = addedFiles.filter((file: File) => file.type === 'application/pdf');
             if (pdfFiles.length !== addedFiles.length) {
                 setFileError('Only PDF files are allowed.');
             }

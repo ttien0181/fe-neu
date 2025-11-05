@@ -42,7 +42,12 @@ const LoginPage: React.FC = () => {
               />
             </div>
             <div>
-              <Label htmlFor="password-input">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password-input">Password</Label>
+                <Link to="/forgot-password" className="text-sm font-medium text-accent hover:text-accent-hover">
+                  Forgot Password?
+                </Link>
+              </div>
               <Input
                 id="password-input"
                 type="password"

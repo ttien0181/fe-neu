@@ -12,6 +12,7 @@ import RegisterPage from './pages/CaseTagsPage'; // Repurposed as RegisterPage
 import CaseFilesPage from './pages/CaseFilesPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 
 const Logo = () => (
   <svg height="24" width="24" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -73,6 +74,7 @@ function App() {
             <Route path="/about" element={<PersonsPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           </Route>
           
           <Route 

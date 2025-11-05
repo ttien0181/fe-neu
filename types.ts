@@ -23,8 +23,32 @@ export interface AuthResponse {
 
 export interface RegisterRequest {
   username?: string;
+  email?: string;
   password?: string;
+  verificationCode?: string;
 }
+
+export interface UserResponse {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+}
+
+export interface SendVerificationCodeRequest {
+  email: string;
+}
+
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    email: string;
+    newPassword: string;
+    verificationCode: string;
+}
+
 
 export interface DecodedToken {
   sub: string;

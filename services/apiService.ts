@@ -1,6 +1,6 @@
-import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse } from '../types';
+import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse, SendVerificationCodeRequest, UserResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../types';
 
-const BASE_URL = 'http://localhost:8080/legal-case-management/api';
+const BASE_URL = 'http://localhost:8080/api';
 
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('authToken');
@@ -40,11 +40,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     throw new Error(errorMessage);
   }
   
-  // Login response is not wrapped in APIResponse
-  if (endpoint === '/auth/login') {
-    return data as T;
-  }
-
   const apiResponse = data as APIResponse<T>;
   if (apiResponse.status === 'SUCCESS' || apiResponse.status === 'OK') {
       return apiResponse.result;
@@ -60,10 +55,30 @@ export const login = (credentials: AuthRequest): Promise<AuthResponse> => fetchA
   body: JSON.stringify(credentials),
 });
 
-export const register = (userData: RegisterRequest): Promise<string> => fetchApi<string>('/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(userData),
-});
+export const sendVerificationCode = (data: SendVerificationCodeRequest): Promise<string> => 
+    fetchApi<string>('/auth/send-verification-code', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+export const register = (userData: RegisterRequest): Promise<UserResponse> => 
+    fetchApi<UserResponse>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData),
+    });
+
+export const sendPasswordResetCode = (data: ForgotPasswordRequest): Promise<string> => 
+    fetchApi<string>('/auth/forgot-password/send-code', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
+export const resetPassword = (data: ResetPasswordRequest): Promise<string> =>
+    fetchApi<string>('/auth/forgot-password/reset', {
+        method: 'POST',
+        body: JSON.stringify(data),
+    });
+
 
 // Categories
 export const getCategories = (): Promise<CategoryResponse[]> => fetchApi<CategoryResponse[]>('/categories');
