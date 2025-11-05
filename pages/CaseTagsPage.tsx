@@ -12,6 +12,7 @@ const RegisterPage: React.FC = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRegistrationComplete, setIsRegistrationComplete] = useState(false);
   const navigate = useNavigate();
 
   const handleSendCode = async (e: React.FormEvent) => {
@@ -38,6 +39,7 @@ const RegisterPage: React.FC = () => {
     try {
       await api.register({ username, email, password, verificationCode });
       setSuccess(`Registration successful! You will be redirected to login shortly.`);
+      setIsRegistrationComplete(true);
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
       setError(err.message || 'Registration failed. Please check your details.');
@@ -114,7 +116,7 @@ const RegisterPage: React.FC = () => {
               </div>
               {success && step === 2 && <p className="text-green-600 text-sm">{success}</p>}
               <div>
-                <Button type="submit" className="w-full" disabled={isLoading || (!!success && step === 2)}>
+                <Button type="submit" className="w-full" disabled={isLoading || isRegistrationComplete}>
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </div>
