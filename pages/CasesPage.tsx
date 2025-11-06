@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
 import { BASE_URL } from '../services/apiService';
-import { CaseResponse, CaseRequest, CategoryResponse, CaseFileResponse } from '../types';
+import { CaseResponse, CaseRequest, CategoryResponse, CaseFileResponse, PersonResponse, CasePersonResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { Button, Modal, Input, Textarea, Select, Spinner, PlusIcon, EditIcon, DeleteIcon, Label, Card, DownloadIcon, EyeIcon } from '../components/ui';
 
@@ -147,42 +147,150 @@ const CaseForm: React.FC<{
     );
 };
 
+const ManageCasePersonsModal: React.FC<{
+    caseItem: CaseResponse;
+    onClose: () => void;
+    onSave: () => void;
+}> = ({ caseItem, onClose, onSave }) => {
+    const [allPersons, setAllPersons] = useState<PersonResponse[]>([]);
+    const [associatedPersonIds, setAssociatedPersonIds] = useState<Set<number>>(new Set());
+    const [loading, setLoading] = useState(true);
+    const [personToAssign, setPersonToAssign] = useState<string>('');
+
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const [persons, casePersons] = await Promise.all([api.getPersons(), api.getCasePersons()]);
+            setAllPersons(persons);
+            const currentIds = casePersons.filter(cp => cp.caseId === caseItem.id).map(cp => cp.personId);
+            setAssociatedPersonIds(new Set(currentIds));
+        } catch (error) {
+            console.error("Failed to load persons data:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [caseItem.id]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleAddPerson = async () => {
+        if (!personToAssign) return;
+        const personId = Number(personToAssign);
+        try {
+            await api.createCasePerson({ caseId: caseItem.id, personId });
+            setAssociatedPersonIds(prev => new Set(prev).add(personId));
+            setPersonToAssign('');
+        } catch (error) {
+            alert('Failed to assign person.');
+        }
+    };
+
+    const handleRemovePerson = async (personId: number) => {
+        try {
+            await api.deleteCasePerson(caseItem.id, personId);
+            setAssociatedPersonIds(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(personId);
+                return newSet;
+            });
+        } catch (error) {
+            alert('Failed to remove person.');
+        }
+    };
+
+    const associatedPersons = allPersons.filter(p => associatedPersonIds.has(p.id));
+    const unassociatedPersons = allPersons.filter(p => !associatedPersonIds.has(p.id));
+    
+    return (
+        <Modal isOpen={true} onClose={onClose} title={`Manage Persons for ${caseItem.caseName}`}>
+            {loading ? <Spinner /> : (
+                <div className="space-y-6">
+                    <div>
+                        <h3 className="font-semibold mb-2">Associated Persons</h3>
+                        <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
+                            {associatedPersons.length > 0 ? associatedPersons.map(p => (
+                                <div key={p.id} className="flex justify-between items-center p-2 bg-background rounded">
+                                    <span>{p.name} <span className="text-xs text-secondary">({p.role})</span></span>
+                                    <Button variant="danger" onClick={() => handleRemovePerson(p.id)} className="px-2 py-1 text-xs">Remove</Button>
+                                </div>
+                            )) : <p className="text-secondary text-sm">No persons assigned yet.</p>}
+                        </div>
+                    </div>
+
+                    <div className="border-t border-border pt-4">
+                        <h3 className="font-semibold mb-2">Assign New Person</h3>
+                        <div className="flex gap-2">
+                            <Select value={personToAssign} onChange={e => setPersonToAssign(e.target.value)} className="flex-grow">
+                                <option value="">Select a person...</option>
+                                {unassociatedPersons.map(p => (
+                                    <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
+                                ))}
+                            </Select>
+                            <Button onClick={handleAddPerson} disabled={!personToAssign}>Add</Button>
+                        </div>
+                    </div>
+                    
+                    <div className="flex justify-end pt-4">
+                        <Button variant="primary" onClick={() => { onSave(); onClose(); }}>Done</Button>
+                    </div>
+                </div>
+            )}
+        </Modal>
+    );
+};
+
 
 const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     const [caseItem, setCaseItem] = useState<CaseResponse | null>(null);
     const [files, setFiles] = useState<CaseFileResponse[]>([]);
+    const [associatedPersons, setAssociatedPersons] = useState<PersonResponse[]>([]);
     const [category, setCategory] = useState<CategoryResponse | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewFile, setPreviewFile] = useState<CaseFileResponse | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+    const [isManagePersonsModalOpen, setIsManagePersonsModalOpen] = useState(false);
+    const { isAdmin } = useAuth();
     const token = localStorage.getItem('authToken');
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                setLoading(true);
-                const caseData = await api.getCaseById(Number(caseId));
-                setCaseItem(caseData);
+    const fetchAllData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const caseData = await api.getCaseById(Number(caseId));
+            setCaseItem(caseData);
 
-                if (caseData.categoryId) {
-                    const categoryData = await api.getCategoryById(caseData.categoryId);
-                    setCategory(categoryData);
-                }
-
-                const allFiles = await api.getCaseFiles();
-                setFiles(allFiles.filter(f => f.caseId === Number(caseId)));
-
-            } catch (e: any) {
-                setError("Failed to load case details.");
-            } finally {
-                setLoading(false);
+            if (caseData.categoryId) {
+                const categoryData = await api.getCategoryById(caseData.categoryId);
+                setCategory(categoryData);
             }
-        };
-        fetchData();
+
+            const [allFiles, allPersons, allCasePersons] = await Promise.all([
+                api.getCaseFiles(),
+                api.getPersons(),
+                api.getCasePersons()
+            ]);
+
+            setFiles(allFiles.filter(f => f.caseId === Number(caseId)));
+
+            const personIdsForCase = allCasePersons
+                .filter(cp => cp.caseId === Number(caseId))
+                .map(cp => cp.personId);
+            setAssociatedPersons(allPersons.filter(p => personIdsForCase.includes(p.id)));
+
+        } catch (e: any) {
+            setError("Failed to load case details.");
+        } finally {
+            setLoading(false);
+        }
     }, [caseId]);
+
+
+    useEffect(() => {
+        fetchAllData();
+    }, [fetchAllData]);
 
     const handlePreview = async (file: CaseFileResponse) => {
         try {
@@ -238,35 +346,69 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     if (error) return <p className="text-red-500">{error}</p>;
     if (!caseItem) return <p>Case not found.</p>;
 
+    const groupedPersons = associatedPersons.reduce((acc, person) => {
+        const role = person.role;
+        if (!acc[role]) {
+            acc[role] = [];
+        }
+        acc[role].push(person);
+        return acc;
+    }, {} as Record<string, PersonResponse[]>);
+
+
     return (
         <div>
-            <Link to="/app/cases" className="text-accent hover:underline mb-6 inline-block">&larr; Back to all cases</Link>
-            <h1 className="text-4xl font-bold text-primary mb-2">{caseItem.caseName}</h1>
-            <p className="text-secondary mb-8">Details for case ID: {caseItem.id}</p>
+            <Link to="/app/cases" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all cases</Link>
+            <div className="flex justify-between items-start mb-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-primary mb-2">{caseItem.caseName}</h1>
+                    <p className="text-secondary">Details for case ID: {caseItem.id}</p>
+                </div>
+                 <span className="px-3 py-1.5 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">{caseItem.status}</span>
+            </div>
+
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                    <Card>
-                        <h2 className="text-2xl font-semibold mb-4">Case Information</h2>
-                        <div className="space-y-3 text-primary">
-                            <p><strong className="text-secondary">Description:</strong> {caseItem.caseDescription}</p>
-                            <p><strong className="text-secondary">Status:</strong> <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{caseItem.status}</span></p>
-                            <p><strong className="text-secondary">Court:</strong> {caseItem.courtName}</p>
-                            <p><strong className="text-secondary">Location:</strong> {caseItem.location}</p>
-                            <p><strong className="text-secondary">Category:</strong> {category?.name || 'N/A'}</p>
+                <div className="lg:col-span-2 space-y-8">
+                    <Card className="p-6">
+                        <h2 className="text-2xl font-semibold mb-4 text-primary">Case Information</h2>
+                        <div className="space-y-4 text-primary text-md">
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <p><strong className="font-semibold text-secondary block mb-1">Court:</strong> {caseItem.courtName || 'N/A'}</p>
+                                <p><strong className="font-semibold text-secondary block mb-1">Location:</strong> {caseItem.location || 'N/A'}</p>
+                                <p><strong className="font-semibold text-secondary block mb-1">Category:</strong> {category?.name || 'N/A'}</p>
+                           </div>
+                            <p><strong className="font-semibold text-secondary block mb-1">Description:</strong> {caseItem.caseDescription || 'No description provided.'}</p>
+                        </div>
+                    </Card>
+                     <Card className="p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-semibold text-primary">Associated Persons</h2>
+                            {isAdmin && <Button variant="secondary" onClick={() => setIsManagePersonsModalOpen(true)}>Manage</Button>}
+                        </div>
+                        <div className="space-y-4">
+                            {Object.entries(groupedPersons).map(([role, persons]) => (
+                                <div key={role}>
+                                    <h3 className="font-semibold text-secondary capitalize">{role}s</h3>
+                                    <ul className="list-disc list-inside ml-2">
+                                        {persons.map(p => <li key={p.id} className="text-primary">{p.name}</li>)}
+                                    </ul>
+                                </div>
+                            ))}
+                            {associatedPersons.length === 0 && <p className="text-secondary">No persons associated with this case.</p>}
                         </div>
                     </Card>
 
-                    <Card>
-                        <h2 className="text-2xl font-semibold mb-4">Case Files</h2>
+                    <Card className="p-6">
+                        <h2 className="text-2xl font-semibold mb-4 text-primary">Case Files</h2>
                         {files.length > 0 ? (
                             <ul className="space-y-3">
                                 {files.map(file => (
-                                    <li key={file.id} className="flex justify-between items-center p-3 bg-background rounded-lg">
-                                        <span className="text-primary">{file.fileName}</span>
+                                    <li key={file.id} className="flex justify-between items-center p-3 bg-background rounded-lg hover:bg-border/50 transition-colors">
+                                        <span className="text-primary font-medium">{file.fileName}</span>
                                         <div className="flex items-center gap-2">
-                                            <button onClick={() => handlePreview(file)} className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><EyeIcon /></button>
-                                            <button onClick={() => handleDownload(file)} className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><DownloadIcon /></button>
+                                            <button onClick={() => handlePreview(file)} title="Preview" className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><EyeIcon /></button>
+                                            <button onClick={() => handleDownload(file)} title="Download" className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><DownloadIcon /></button>
                                         </div>
                                     </li>
                                 ))}
@@ -276,11 +418,11 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                 </div>
 
                 <div className="lg:col-span-1">
-                    <Card>
-                        <h2 className="text-2xl font-semibold mb-4">Metadata</h2>
+                    <Card className="p-6">
+                        <h2 className="text-2xl font-semibold mb-4 text-primary">Metadata</h2>
                         <div className="space-y-3 text-primary">
-                            <p><strong className="text-secondary">Created:</strong> {new Date(caseItem.createdAt).toLocaleString()}</p>
-                            <p><strong className="text-secondary">Last Updated:</strong> {new Date(caseItem.updatedAt).toLocaleString()}</p>
+                            <p><strong className="font-semibold text-secondary block">Created:</strong> {new Date(caseItem.createdAt).toLocaleString()}</p>
+                            <p><strong className="font-semibold text-secondary block">Last Updated:</strong> {new Date(caseItem.updatedAt).toLocaleString()}</p>
                         </div>
                     </Card>
                 </div>
@@ -296,6 +438,13 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                         )}
                     </div>
                 </Modal>
+            )}
+             {isManagePersonsModalOpen && (
+                <ManageCasePersonsModal 
+                    caseItem={caseItem}
+                    onClose={() => setIsManagePersonsModalOpen(false)}
+                    onSave={fetchAllData}
+                />
             )}
         </div>
     );
@@ -354,8 +503,10 @@ const CaseList: React.FC = () => {
                 caseId = newCase.id;
             }
 
-            if (newFiles.length > 0) {
-                const uploadPromises = newFiles.map(file => {
+            // Fix: Add Array.isArray check to fix "Property 'map' does not exist on type 'unknown'" error.
+            if (Array.isArray(newFiles) && newFiles.length > 0) {
+                // Fix: Explicitly typing `file` as `File` to resolve a type inference issue.
+                const uploadPromises = newFiles.map((file: File) => {
                     const formData = new FormData();
                     formData.append('file', file);
                     formData.append('caseId', caseId.toString());
@@ -410,7 +561,7 @@ const CaseList: React.FC = () => {
                  {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon /> Add New Case</Button>}
             </div>
 
-            <Card className="mb-8">
+            <Card className="mb-8 p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <Input name="search" placeholder="Search by name or court..." value={filters.search} onChange={handleFilterChange} />
                     <Select name="category" value={filters.category} onChange={handleFilterChange}>
@@ -427,30 +578,38 @@ const CaseList: React.FC = () => {
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCases.map(caseItem => (
-                        <Card key={caseItem.id} className="flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                            <div>
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-xl font-semibold text-primary mb-2 pr-2">{caseItem.caseName}</h2>
-                                    {isAdmin && (
-                                        <div className="flex-shrink-0 flex items-center gap-1">
-                                            <button onClick={() => handleOpenModal(caseItem)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
-                                            <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
-                                        </div>
-                                    )}
+                 filteredCases.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCases.map(caseItem => (
+                            <Card key={caseItem.id} className="p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                                <div>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h2 className="text-lg font-semibold text-primary group-hover:text-accent transition-colors pr-2">{caseItem.caseName}</h2>
+                                        {isAdmin && (
+                                            <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleOpenModal(caseItem)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
+                                                <button onClick={() => handleDelete(caseItem.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-sm text-secondary mb-4">
+                                        <span className="font-medium">{categories.find(c => c.id === caseItem.categoryId)?.name || 'N/A'}</span>
+                                        <span className="mx-2">&middot;</span>
+                                        <span>Court: {caseItem.courtName}</span>
+                                    </p>
                                 </div>
-                                <p className="text-secondary text-sm mb-1">{categories.find(c => c.id === caseItem.categoryId)?.name || 'N/A'}</p>
-                                <p className="text-secondary text-sm mb-4">Court: {caseItem.courtName}</p>
-                                <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{caseItem.status}</span>
-                            </div>
-                            <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
-                                <p className="text-xs text-secondary">Updated: {new Date(caseItem.updatedAt).toLocaleDateString()}</p>
-                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent font-semibold hover:underline">View Details</Link>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
+                                <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
+                                     <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{caseItem.status}</span>
+                                    <Link to={`/app/cases/${caseItem.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16">
+                        <p className="text-secondary">No cases found matching your criteria.</p>
+                    </div>
+                )
             )}
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCase ? 'Edit Case' : 'Add New Case'}>
                 <CaseForm

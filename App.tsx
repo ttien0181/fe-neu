@@ -8,18 +8,17 @@ import MainLayout from './pages/MainLayout';
 import DashboardPage from './pages/DashboardPage';
 import CasesPage from './pages/CasesPage';
 import CategoriesPage from './pages/CategoriesPage';
-import AboutPage from './pages/PersonsPage'; // Repurposed as AboutPage
-import LandingPage from './pages/AuditLogsPage'; // Repurposed as LandingPage
-import RegisterPage from './pages/CaseTagsPage'; // Repurposed as RegisterPage
-import CaseFilesPage from './pages/CaseFilesPage';
+import AboutPage from './pages/AboutPage';
+import RegisterPage from './pages/CaseTagsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LawyersPage from './pages/LawyersPage';
+import PersonsPage from './pages/PersonsPage';
 import QuestionsPage from './pages/QuestionsPage';
 import MyQuestionsPage from './pages/MyQuestionsPage';
 
-const Logo = ({ className = 'h-6 w-6', color = '#14b8a6' }) => (
+const Logo = ({ className = 'h-6 w-6', color = '#4f46e5' }) => (
     <svg className={className} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
       <path fill={color} d="M24.2,2.3c-0.2,0-0.4,0-0.5,0c-0.3,0-0.5,0.1-0.8,0.2c-11.4,2.6-18.1,13.7-15.5,25.1c2,9,9.6,15.7,18.5,16.2c0.2,0,0.3,0,0.5,0c11.8-0.6,21.3-10.4,21.3-22.3C47.6,11.8,37.2,2.4,24.2,2.3z M24,43.3C14.7,43.3,7,35.5,7,26.3c0-8.2,5.9-15.1,13.9-16.5l15.8,15.8C35.6,33.5,29.9,34.2,24,43.3z M30.9,23.3L15.1,7.5c1.4-0.6,3-1,4.6-1.1c9.4-0.5,17.2,6.8,17.2,16.2C36.9,22.8,32,23.1,30.9,23.3z"/>
     </svg>
@@ -34,14 +33,13 @@ const Header = () => (
         <span>Binh An Law</span>
       </Link>
       <nav className="hidden md:flex items-center space-x-8">
-        <NavLink to="/lawyers" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>Lawyers</NavLink>
-        <NavLink to="/about" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary' : ''}`}>About</NavLink>
+        <NavLink to="/" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary font-semibold' : ''}`}>About</NavLink>
       </nav>
       <div className="flex items-center gap-2">
-        <Link to="/login" className="px-4 py-2 rounded-lg text-primary hover:bg-background transition-colors duration-300">
+        <Link to="/login" className="px-4 py-2 rounded-lg text-primary font-semibold hover:bg-background transition-colors duration-300">
           Log in
         </Link>
-        <Link to="/register" className="px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300">
+        <Link to="/register" className="px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px">
           Register
         </Link>
       </div>
@@ -101,9 +99,7 @@ function App() {
       <AuthProvider>
         <Routes>
           <Route element={<PublicLayout />}>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/lawyers" element={<LawyersPage />} />
+            <Route path="/" element={<AboutPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -123,8 +119,10 @@ function App() {
             <Route path="cases/:caseId" element={<CasesPage />} />
             <Route path="categories" element={<CategoriesPage />} />
             <Route path="categories/:categoryId" element={<CategoriesPage />} />
-            <Route path="files" element={<CaseFilesPage />} />
+            <Route path="persons" element={<PersonsPage />} />
+            <Route path="persons/:personId" element={<PersonsPage />} />
             <Route path="lawyers" element={<LawyersPage />} />
+            <Route path="lawyers/:lawyerId" element={<LawyersPage />} />
             <Route path="questions" element={<QuestionsPage />} />
             <Route path="questions/:questionId" element={<QuestionsPage />} />
             <Route path="my-questions" element={<MyQuestionsPage />} />

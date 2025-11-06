@@ -1,72 +1,352 @@
-import React from 'react';
 
-// Image data is embedded as constants to avoid needing a separate assets folder.
-// In a real project, these would be in /assets/images/
-const image1 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6ea5b0.JPG';
-const image2 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6ec67f.JPG';
-const image3 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6efcca.JPG';
-const image4 = 'https://img.lsvn.vn/uploads/photos/1013/6/60862ac6efcef.JPG';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import * as api from '../services/apiService';
+import { PersonResponse, PersonRequest, CaseResponse } from '../types';
+import { Card, Spinner, Input, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select } from '../components/ui';
+import { useAuth } from '../contexts/AuthContext';
 
-const AboutPage: React.FC = () => {
-  return (
-    <div className="bg-background pt-24 pb-16">
-      <div className="container mx-auto px-6">
-        <div className="max-w-4xl mx-auto bg-surface p-8 sm:p-12 rounded-2xl shadow-lg border border-border">
-          <h1 className="text-4xl sm:text-5xl font-bold text-primary mb-4 text-center">
-            Văn phòng Luật sư Quốc tế Bình An
-          </h1>
-          <h2 className="text-2xl sm:text-3xl font-semibold text-accent mb-6 text-center">10 năm hình thành và phát triển</h2>
-          <p className="text-center text-secondary text-sm mb-10">26/04/2021 03:00</p>
-          
-          <div className="prose prose-lg max-w-none text-primary">
-            <p className="lead">
-              Với đội ngũ Luật sư và chuyên gia tư vấn chuyên nghiệp được đào tạo chuyên sâu, giàu nhiệt huyết và có tinh thần trách nhiệm cao đối với hoạt động nghề nghiệp; trong suốt quá trình 10 năm hình thành và phát triển, Văn phòng Luật sư Quốc tế Bình An luôn cam kết cung cấp cho khách hàng những dịch vụ pháp lý chuyên nghiệp với chất lượng và độ tin cậy cao cũng như các giải pháp sáng tạo cho các vấn đề của doanh nghiệp.
-            </p>
-            
-            <figure className="my-10">
-              <img src={image1} alt="Đội ngũ Văn phòng Luật sư Quốc tế Bình An" className="rounded-xl shadow-md w-full" />
-              <figcaption className="text-center text-secondary text-sm mt-2">
-                Luật sư Bùi Việt Anh, Trưởng Văn phòng Luật sư Quốc tế Bình An: "Chú trọng xây dựng một đội ngũ Luật sư và chuyên gia tư vấn được đào tạo chuyên sâu".
-              </figcaption>
-            </figure>
+const PersonForm: React.FC<{
+    initialData: PersonResponse | null;
+    onSubmit: (data: PersonRequest) => void;
+    onCancel: () => void;
+}> = ({ initialData, onSubmit, onCancel }) => {
+    const [formData, setFormData] = useState<PersonRequest>({
+        name: initialData?.name || '',
+        role: initialData?.role || 'plaintiff',
+        contactInfo: initialData?.contactInfo || '',
+    });
 
-            <p>
-              Được thành lập vào ngày 20/4/2011 bởi Luật sư Bùi Việt Anh, Văn phòng Luật sư Quốc tế Bình An có kinh nghiệm nhiều năm hoạt động trong các lĩnh vực cung ứng dịch vụ pháp lý, như: tham gia tố tụng, tư vấn pháp luật, đại diện ngoài tố tụng, các dịch vụ pháp luật khác với nhiều khách hàng là các cá nhân, tổ chức trong và ngoài nước liên quan đến các hoạt động đầu tư, dân sự, hình sự, kinh doanh thương mại, lao động…
-            </p>
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
-            <div className="grid md:grid-cols-2 gap-6 my-10">
-              <img src={image2} alt="Khách mời tặng hoa chúc mừng" className="rounded-xl shadow-md" />
-              <img src={image3} alt="Lễ kỷ niệm 10 năm thành lập" className="rounded-xl shadow-md" />
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        onSubmit(formData);
+    };
+    
+    return (
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <Label htmlFor="name">Full Name</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
-            <p className="text-center text-secondary text-sm -mt-6 mb-10">Khách mời tặng hoa chúc mừng Lễ kỷ niệm 10 năm thành lập Văn phòng Luật sư Quốc tế Bình An.</p>
-
-            <p>
-              Để mang đến chất lương dịch vụ tốt nhất cho khách hàng, Luật sư Bùi Việt Anh chú trọng xây dựng một đội ngũ Luật sư và chuyên gia tư vấn được đào tạo chuyên sâu, là những chuyên gia có nhiều năm kinh nghiệm hành nghề ở Việt Nam. Luật sư Bùi Việt Anh, Trưởng Văn phòng Luật sư Quốc tế Bình An là người đã có 10 năm kinh nghiệm làm việc tại ngành tòa án; 04 năm làm Trưởng ban Pháp chế tại doanh nghiệp; 12 năm hành nghề Luật sư tại các tổ chức hành nghề Luật sư với các lĩnh vực hoạt động chính: bào chữa, bảo vệ quyền lợi cho bị can, bị cáo, đương sự trong các vụ án hình sự, dân sự, kinh doanh thương mại; tư vấn pháp luật, thực hiện dịch vụ pháp lý về các lĩnh vực: xuất khẩu lao động, đất đai, tư vấn doanh nghiệp, thương mại, đầu tư, các vấn đề pháp luật liên quan đến cá nhân, tổ chức nước ngoài; đại diện ngoài tố tụng để thực hiện các công việc có liên quan đến pháp luật. Ngoài ra, anh còn hoàn thành chương trình Thạc sĩ Quản lý kinh tế vào năm 2016.
-            </p>
-            
-            <p>
-              Hiện tại, Luật sư Bùi Việt Anh là Bí thư Chi bộ Luật sư Long Biên 3 thuộc Đảng bộ Đoàn Luật sư TP. Hà Nội và Phó Chủ tịch Hội đồng Khen thưởng – Kỷ luật Đoàn Luật sư TP. Hà Nội nhiệm kỳ X.
-            </p>
-
-            <blockquote className="border-l-4 border-accent pl-6 py-2 my-8 text-secondary italic">
-              Với phương châm “Chuyên nghiệp – Tận tâm – Hiệu quả”, Văn phòng Luật sư Quốc tế Bình An luôn nhận được sự tin cậy của khách hàng.
-            </blockquote>
-            
-            <figure className="my-10">
-              <img src={image4} alt="Khách mời tại lễ kỷ niệm" className="rounded-xl shadow-md w-full" />
-            </figure>
-
-            <p>
-              Văn phòng Luật sư Quốc tế Bình An tự hào về khả năng chia sẻ tầm nhìn của khách hàng và xử lý những thách thức và khó khăn pháp lý mà khách hàng phải đối mặt. Luật sư và chuyên gia của Văn phòng Luật sư Quốc tế Bình An luôn cung cấp các dịch vụ pháp lý với tinh thần và trách nhiệm cao nhất. Ngay từ khi được cấp phép hoạt động đến nay, trung bình một năm Văn phòng Luật sư Quốc tế Bình An ký kết hợp đồng dịch vụ pháp lý tham gia tranh tụng, tư vấn pháp luật và đại diện ngoài tố tụng gần 80 vụ án bao gồm cả hành chính, hình sự, dân sự, kinh tế, lao động…
-            </p>
-            <p>
-              Trong suốt 10 năm hình thành và phát triển, với phương châm “Chuyên nghiệp – Tận tâm – Hiệu quả”, Văn phòng Luật sư Quốc tế Bình An không ngừng hoàn thiện và phát triển về cả nhân sự cũng chất lượng cung cấp dịch vụ pháp lý, nhận được sự tin cậy của khách hàng. Với những nỗ lực không ngừng nghỉ trong hoạt động nghề nghiệp, Luật sư Bùi Việt Anh, Trưởng Văn phòng Luật sư Quốc tế Bình An còn được nhận nhiều Bằng khen, Kỷ niệm chương của Đoàn Luật sư TP. Hà Nội.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+            <div>
+                <Label htmlFor="role">Role</Label>
+                <Select id="role" name="role" value={formData.role} onChange={handleChange} required>
+                    <option value="plaintiff">Plaintiff</option>
+                    <option value="defendant">Defendant</option>
+                </Select>
+            </div>
+            <div>
+                <Label htmlFor="contactInfo">Contact Info</Label>
+                <Input id="contactInfo" name="contactInfo" value={formData.contactInfo} onChange={handleChange} />
+            </div>
+            <div className="flex justify-end gap-4 pt-4">
+                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
+                <Button type="submit">Save Person</Button>
+            </div>
+        </form>
+    );
 };
 
-export default AboutPage;
+const AssignCaseModal: React.FC<{
+    person: PersonResponse;
+    onClose: () => void;
+    onSave: () => void;
+}> = ({ person, onClose, onSave }) => {
+    const [allCases, setAllCases] = useState<CaseResponse[]>([]);
+    const [assignedCaseIds, setAssignedCaseIds] = useState<Set<number>>(new Set());
+    const [loading, setLoading] = useState(true);
+    const [caseToAssign, setCaseToAssign] = useState<string>('');
+    
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                const [cases, casePersons] = await Promise.all([api.getCases(), api.getCasePersons()]);
+                setAllCases(cases);
+                const currentIds = casePersons.filter(cp => cp.personId === person.id).map(cp => cp.caseId);
+                setAssignedCaseIds(new Set(currentIds));
+            } catch (error) {
+                console.error("Failed to load data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [person.id]);
+
+    const handleAssign = async () => {
+        if (!caseToAssign) return;
+        const caseId = Number(caseToAssign);
+        try {
+            await api.createCasePerson({ caseId, personId: person.id });
+            setAssignedCaseIds(prev => new Set(prev).add(caseId));
+            setCaseToAssign('');
+            onSave(); // Notify parent to refetch
+        } catch (error) {
+            alert('Failed to assign case.');
+        }
+    };
+    
+    const unassignedCases = allCases.filter(c => !assignedCaseIds.has(c.id));
+
+    return (
+         <Modal isOpen={true} onClose={onClose} title={`Assign Case to ${person.name}`}>
+            {loading ? <Spinner /> : (
+                 <div className="space-y-4">
+                    <Label>Select a case to assign</Label>
+                    <div className="flex gap-2">
+                        <Select value={caseToAssign} onChange={e => setCaseToAssign(e.target.value)} className="flex-grow">
+                            <option value="">Select a case...</option>
+                            {unassignedCases.map(c => (
+                                <option key={c.id} value={c.id}>{c.caseName}</option>
+                            ))}
+                        </Select>
+                        <Button onClick={handleAssign} disabled={!caseToAssign}>Assign</Button>
+                    </div>
+                    <div className="flex justify-end pt-4">
+                        <Button variant="primary" onClick={onClose}>Done</Button>
+                    </div>
+                 </div>
+            )}
+        </Modal>
+    )
+}
+
+const PersonDetail: React.FC<{ personId: string }> = ({ personId }) => {
+    const [person, setPerson] = useState<PersonResponse | null>(null);
+    const [assignedCases, setAssignedCases] = useState<CaseResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const { isAdmin } = useAuth();
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const personData = await api.getPersonById(Number(personId));
+            setPerson(personData);
+
+            const [allCases, allCasePersons] = await Promise.all([api.getCases(), api.getCasePersons()]);
+            const caseIds = allCasePersons
+                .filter(cp => cp.personId === Number(personId))
+                .map(cp => cp.caseId);
+            setAssignedCases(allCases.filter(c => caseIds.includes(c.id)));
+        } catch (err) {
+            setError("Failed to load person details.");
+        } finally {
+            setLoading(false);
+        }
+    }, [personId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+    
+    const handleRemoveFromCase = async (caseId: number) => {
+        if (!person) return;
+        if (window.confirm("Are you sure you want to remove this person from the case?")) {
+            try {
+                await api.deleteCasePerson(caseId, person.id);
+                fetchData();
+            } catch (err) {
+                alert("Failed to remove person from case.");
+            }
+        }
+    };
+    
+    if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
+    if (error) return <p className="text-red-500">{error}</p>;
+    if (!person) return <p>Person not found.</p>;
+    
+    return (
+        <div>
+            <Link to="/app/persons" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all persons</Link>
+            <div className="flex justify-between items-start mb-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-primary mb-2">{person.name}</h1>
+                    <p className="text-secondary capitalize">{person.role}</p>
+                </div>
+                 {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+            </div>
+
+            <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-primary">Associated Cases ({assignedCases.length})</h2>
+                {assignedCases.length > 0 ? (
+                    <div className="divide-y divide-border -mx-6">
+                        {assignedCases.map(caseItem => (
+                            <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors group">
+                                <div>
+                                    <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
+                                    <p className="text-sm text-secondary">{caseItem.courtName}</p>
+                                </div>
+                                 <div className="flex items-center gap-4">
+                                     <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
+                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-secondary py-8 text-center">This person is not associated with any cases yet.</p>
+                )}
+            </Card>
+             {isAssignModalOpen && (
+                <AssignCaseModal 
+                    person={person}
+                    onClose={() => setIsAssignModalOpen(false)}
+                    onSave={fetchData}
+                />
+            )}
+        </div>
+    );
+};
+
+
+const PersonList: React.FC = () => {
+    const [persons, setPersons] = useState<PersonResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [filters, setFilters] = useState({ search: '', role: 'all' });
+    const { isAdmin } = useAuth();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingPerson, setEditingPerson] = useState<PersonResponse | null>(null);
+
+    const fetchPersons = useCallback(async () => {
+        try {
+            setLoading(true);
+            const allPersons = await api.getPersons();
+            setPersons(allPersons.filter(person => person.role.toLowerCase() !== 'lawyer'));
+        } catch (err: any) {
+            setError('Failed to fetch person information.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchPersons();
+    }, [fetchPersons]);
+    
+     const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFilters(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleOpenModal = (person: PersonResponse | null = null) => {
+        setEditingPerson(person);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setEditingPerson(null);
+    };
+    
+    const handleFormSubmit = async (data: PersonRequest) => {
+        try {
+            if (editingPerson) {
+                await api.updatePerson(editingPerson.id, data);
+            } else {
+                await api.createPerson(data);
+            }
+            handleCloseModal();
+            fetchPersons();
+        } catch (err: any) {
+            setError(err.message || 'Failed to save person.');
+        }
+    };
+    
+    const handleDelete = async (id: number) => {
+        if (window.confirm("Are you sure you want to delete this person? They will be unassigned from all cases.")) {
+            try {
+                await api.deletePerson(id);
+                fetchPersons();
+            } catch (err: any) {
+                setError(err.message || 'Failed to delete person.');
+            }
+        }
+    };
+
+    const filteredPersons = useMemo(() => {
+        return persons.filter(person => {
+            const matchesSearch = person.name.toLowerCase().includes(filters.search.toLowerCase());
+            const matchesRole = filters.role === 'all' || person.role.toLowerCase() === filters.role;
+            return matchesSearch && matchesRole;
+        });
+    }, [persons, filters]);
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-primary">Manage Persons</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Person</Button>}
+            </div>
+
+            <Card className="mb-8 p-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input name="search" placeholder="Search by name..." value={filters.search} onChange={handleFilterChange} />
+                    <Select name="role" value={filters.role} onChange={handleFilterChange}>
+                        <option value="all">All Roles</option>
+                        <option value="plaintiff">Plaintiff</option>
+                        <option value="defendant">Defendant</option>
+                    </Select>
+                </div>
+            </Card>
+
+             {error && <p className="text-red-500 bg-red-100 p-3 rounded-lg mb-6">{error}</p>}
+
+            {loading ? (
+                <div className="flex justify-center items-center h-64"><Spinner /></div>
+            ) : (
+                <>
+                    {filteredPersons.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {filteredPersons.map(person => (
+                                <Card key={person.id} className="p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                                     <div>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h2 className="text-lg font-semibold text-primary group-hover:text-accent transition-colors pr-2">{person.name}</h2>
+                                            {isAdmin && (
+                                                <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => handleOpenModal(person)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
+                                                    <button onClick={() => handleDelete(person.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <p className="text-secondary text-sm capitalize">{person.role}</p>
+                                    </div>
+                                    <div className="mt-4 pt-4 border-t border-border text-right">
+                                        <Link to={`/app/persons/${person.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center text-secondary py-16">
+                            No persons found matching your criteria.
+                        </p>
+                    )}
+                </>
+            )}
+            
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingPerson ? 'Edit Person' : 'Add New Person'}>
+                <PersonForm
+                    initialData={editingPerson}
+                    onSubmit={handleFormSubmit}
+                    onCancel={handleCloseModal}
+                />
+            </Modal>
+        </div>
+    );
+};
+
+const PersonsPage: React.FC = () => {
+    const { personId } = useParams<{ personId?: string }>();
+    return personId ? <PersonDetail personId={personId} /> : <PersonList />;
+};
+
+export default PersonsPage;

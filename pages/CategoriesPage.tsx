@@ -70,26 +70,26 @@ const CategoryDetail: React.FC<{ categoryId: string }> = ({ categoryId }) => {
 
     return (
         <div>
-            <Link to="/app/categories" className="text-accent hover:underline mb-6 inline-block">&larr; Back to all categories</Link>
+            <Link to="/app/categories" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all categories</Link>
             <h1 className="text-4xl font-bold text-primary mb-2">{category.name}</h1>
-            <p className="text-secondary mb-8">{category.description}</p>
+            <p className="text-secondary mb-8 text-lg">{category.description}</p>
             
-            <Card>
-                <h2 className="text-2xl font-semibold mb-4">Cases in this Category</h2>
+            <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-primary">Cases in this Category ({cases.length})</h2>
                 {cases.length > 0 ? (
-                    <div className="divide-y divide-border">
+                    <div className="divide-y divide-border -mx-6">
                         {cases.map(caseItem => (
-                            <div key={caseItem.id} className="py-3 flex justify-between items-center">
+                            <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors">
                                 <div>
                                     <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
                                     <p className="text-sm text-secondary">{caseItem.courtName}</p>
                                 </div>
-                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Details</Link>
+                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Details &rarr;</Link>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-secondary">No cases found in this category.</p>
+                    <p className="text-secondary py-8 text-center">No cases found in this category.</p>
                 )}
             </Card>
         </div>
@@ -180,27 +180,33 @@ const CategoryList: React.FC = () => {
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCategories.map(category => (
-                        <Card key={category.id} className="flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
-                            <div>
-                                <div className="flex justify-between items-start">
-                                    <h2 className="text-xl font-semibold text-primary mb-2 pr-2">{category.name}</h2>
-                                    {isAdmin && (
-                                        <div className="flex-shrink-0 flex items-center gap-1">
-                                            <button onClick={() => handleOpenModal(category)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
-                                            <button onClick={() => handleDelete(category.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
-                                        </div>
-                                    )}
+                filteredCategories.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {filteredCategories.map(category => (
+                            <Card key={category.id} className="p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                                <div>
+                                    <div className="flex justify-between items-start mb-2">
+                                        <h2 className="text-xl font-semibold text-primary group-hover:text-accent transition-colors pr-2">{category.name}</h2>
+                                        {isAdmin && (
+                                            <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => handleOpenModal(category)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
+                                                <button onClick={() => handleDelete(category.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <p className="text-secondary text-sm mb-4 line-clamp-3 h-15">{category.description}</p>
                                 </div>
-                                <p className="text-secondary text-sm mb-4 line-clamp-3">{category.description}</p>
-                            </div>
-                            <div className="mt-4 text-right">
-                                <Link to={`/app/categories/${category.id}`} className="text-accent font-semibold hover:underline">View Details</Link>
-                            </div>
-                        </Card>
-                    ))}
-                </div>
+                                <div className="mt-4 pt-4 border-t border-border text-right">
+                                    <Link to={`/app/categories/${category.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="text-center py-16">
+                        <p className="text-secondary">No categories found matching your search.</p>
+                    </div>
+                )
             )}
             <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCategory ? 'Edit Category' : 'Add New Category'}>
                 <CategoryForm

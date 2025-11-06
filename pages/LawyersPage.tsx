@@ -1,100 +1,269 @@
 
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
-import { PersonResponse, QuestionRequest } from '../types';
-import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, Textarea, ChatBubbleIcon } from '../components/ui';
+import { PersonResponse, PersonRequest, CaseResponse } from '../types';
+import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 
-const AskQuestionForm: React.FC<{
-    lawyer: PersonResponse;
-    onSubmit: (content: string) => void;
+const PersonForm: React.FC<{
+    initialData: PersonResponse | null;
+    onSubmit: (data: PersonRequest) => void;
     onCancel: () => void;
-}> = ({ lawyer, onSubmit, onCancel }) => {
-    const [content, setContent] = useState('');
+}> = ({ initialData, onSubmit, onCancel }) => {
+    const [formData, setFormData] = useState<PersonRequest>({
+        name: initialData?.name || '',
+        role: 'lawyer',
+        contactInfo: initialData?.contactInfo || '',
+    });
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(content);
+        onSubmit(formData);
     };
-
+    
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="question_content">Your question for {lawyer.name}</Label>
-                <Textarea
-                    id="question_content"
-                    value={content}
-                    onChange={e => setContent(e.target.value)}
-                    rows={6}
-                    required
-                    placeholder="Please type your legal question here..."
-                />
+                <Label htmlFor="name">Lawyer Name</Label>
+                <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
+            </div>
+            <div>
+                <Label htmlFor="contactInfo">Email / Contact Info</Label>
+                <Input id="contactInfo" name="contactInfo" value={formData.contactInfo} onChange={handleChange} required />
             </div>
             <div className="flex justify-end gap-4 pt-4">
                 <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Submit Question</Button>
+                <Button type="submit">Save Lawyer</Button>
             </div>
         </form>
     );
 };
 
-
-const LawyersPage: React.FC = () => {
-    const [lawyers, setLawyers] = useState<PersonResponse[]>([]);
+const AssignCaseModal: React.FC<{
+    person: PersonResponse;
+    onClose: () => void;
+    onSave: () => void;
+}> = ({ person, onClose, onSave }) => {
+    const [allCases, setAllCases] = useState<CaseResponse[]>([]);
+    const [assignedCaseIds, setAssignedCaseIds] = useState<Set<number>>(new Set());
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [searchTerm, setSearchTerm] = useState('');
-    const { isAuthenticated, user } = useAuth();
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedLawyer, setSelectedLawyer] = useState<PersonResponse | null>(null);
-
+    const [caseToAssign, setCaseToAssign] = useState<string>('');
+    
     useEffect(() => {
-        const fetchLawyers = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const allPersons = await api.getPersons();
-                const lawyerList = allPersons.filter(person => person.role.toLowerCase() === 'lawyer');
-                setLawyers(lawyerList);
-            } catch (err: any) {
-                setError('Failed to fetch lawyer information.');
+                const [cases, casePersons] = await Promise.all([api.getCases(), api.getCasePersons()]);
+                setAllCases(cases);
+                const currentIds = casePersons.filter(cp => cp.personId === person.id).map(cp => cp.caseId);
+                setAssignedCaseIds(new Set(currentIds));
+            } catch (error) {
+                console.error("Failed to load data:", error);
             } finally {
                 setLoading(false);
             }
         };
+        fetchData();
+    }, [person.id]);
 
-        fetchLawyers();
-    }, []);
+    const handleAssign = async () => {
+        if (!caseToAssign) return;
+        const caseId = Number(caseToAssign);
+        try {
+            await api.createCasePerson({ caseId, personId: person.id });
+            setAssignedCaseIds(prev => new Set(prev).add(caseId));
+            setCaseToAssign('');
+            onSave(); // Notify parent to refetch
+        } catch (error) {
+            alert('Failed to assign case.');
+        }
+    };
     
-    const handleOpenModal = (lawyer: PersonResponse) => {
-        setSelectedLawyer(lawyer);
+    const unassignedCases = allCases.filter(c => !assignedCaseIds.has(c.id));
+
+    return (
+         <Modal isOpen={true} onClose={onClose} title={`Assign Case to ${person.name}`}>
+            {loading ? <Spinner /> : (
+                 <div className="space-y-4">
+                    <Label>Select a case to assign</Label>
+                    <div className="flex gap-2">
+                        <Select value={caseToAssign} onChange={e => setCaseToAssign(e.target.value)} className="flex-grow">
+                            <option value="">Select a case...</option>
+                            {unassignedCases.map(c => (
+                                <option key={c.id} value={c.id}>{c.caseName}</option>
+                            ))}
+                        </Select>
+                        <Button onClick={handleAssign} disabled={!caseToAssign}>Assign</Button>
+                    </div>
+                    <div className="flex justify-end pt-4">
+                        <Button variant="primary" onClick={onClose}>Done</Button>
+                    </div>
+                 </div>
+            )}
+        </Modal>
+    )
+}
+
+const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
+    const [lawyer, setLawyer] = useState<PersonResponse | null>(null);
+    const [assignedCases, setAssignedCases] = useState<CaseResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const { isAdmin } = useAuth();
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+
+    const fetchData = useCallback(async () => {
+        try {
+            setLoading(true);
+            const lawyerData = await api.getPersonById(Number(lawyerId));
+            if (lawyerData.role.toLowerCase() !== 'lawyer') {
+                setError("This person is not a lawyer.");
+                return;
+            }
+            setLawyer(lawyerData);
+
+            const [allCases, allCasePersons] = await Promise.all([api.getCases(), api.getCasePersons()]);
+            const caseIds = allCasePersons
+                .filter(cp => cp.personId === Number(lawyerId))
+                .map(cp => cp.caseId);
+            setAssignedCases(allCases.filter(c => caseIds.includes(c.id)));
+        } catch (err) {
+            setError("Failed to load lawyer details.");
+        } finally {
+            setLoading(false);
+        }
+    }, [lawyerId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleRemoveFromCase = async (caseId: number) => {
+        if (!lawyer) return;
+        if (window.confirm("Are you sure you want to remove this lawyer from the case?")) {
+            try {
+                await api.deleteCasePerson(caseId, lawyer.id);
+                fetchData();
+            } catch (err) {
+                alert("Failed to remove lawyer from case.");
+            }
+        }
+    };
+    
+    if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
+    if (error) return <p className="text-red-500">{error}</p>;
+    if (!lawyer) return <p>Lawyer not found.</p>;
+    
+    return (
+        <div>
+            <Link to="/app/lawyers" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all lawyers</Link>
+            <div className="flex justify-between items-start mb-8">
+                <div>
+                    <h1 className="text-4xl font-bold text-primary mb-2">{lawyer.name}</h1>
+                    <p className="text-secondary">{lawyer.contactInfo}</p>
+                </div>
+                 {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+            </div>
+
+            <Card className="p-6">
+                <h2 className="text-2xl font-semibold mb-4 text-primary">Assigned Cases ({assignedCases.length})</h2>
+                {assignedCases.length > 0 ? (
+                    <div className="divide-y divide-border -mx-6">
+                        {assignedCases.map(caseItem => (
+                            <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors group">
+                                <div>
+                                    <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
+                                    <p className="text-sm text-secondary">{caseItem.courtName}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                     <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
+                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-secondary py-8 text-center">This lawyer is not assigned to any cases yet.</p>
+                )}
+            </Card>
+            {isAssignModalOpen && (
+                <AssignCaseModal 
+                    person={lawyer}
+                    onClose={() => setIsAssignModalOpen(false)}
+                    onSave={fetchData}
+                />
+            )}
+        </div>
+    );
+};
+
+
+const LawyerList: React.FC = () => {
+    const [lawyers, setLawyers] = useState<PersonResponse[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
+    const { isAdmin } = useAuth();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingLawyer, setEditingLawyer] = useState<PersonResponse | null>(null);
+
+    const fetchLawyers = useCallback(async () => {
+        try {
+            setLoading(true);
+            const allPersons = await api.getPersons();
+            setLawyers(allPersons.filter(person => person.role.toLowerCase() === 'lawyer'));
+        } catch (err: any) {
+            setError('Failed to fetch lawyer information.');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchLawyers();
+    }, [fetchLawyers]);
+
+    const handleOpenModal = (lawyer: PersonResponse | null = null) => {
+        setEditingLawyer(lawyer);
         setIsModalOpen(true);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedLawyer(null);
+        setEditingLawyer(null);
     };
     
-    const handleQuestionSubmit = async (content: string) => {
-        if (!user || !selectedLawyer) {
-            setError("You must be logged in to ask a question.");
-            return;
-        }
+    const handleFormSubmit = async (data: PersonRequest) => {
         try {
-            const questionData: QuestionRequest = {
-                idQuestioner: user.id,
-                idLawyerPerson: selectedLawyer.id,
-                content: content,
-            };
-            await api.createQuestion(questionData);
+            if (editingLawyer) {
+                await api.updatePerson(editingLawyer.id, data);
+            } else {
+                await api.createPerson(data);
+            }
             handleCloseModal();
-            alert("Your question has been submitted successfully!");
+            fetchLawyers();
         } catch (err: any) {
-            setError(err.message || "Failed to submit your question.");
+            setError(err.message || 'Failed to save lawyer.');
         }
     };
-
+    
+    const handleDelete = async (id: number) => {
+        if (window.confirm("Are you sure you want to delete this lawyer? They will be unassigned from all cases.")) {
+            try {
+                await api.deletePerson(id);
+                fetchLawyers();
+            } catch (err: any) {
+                setError(err.message || 'Failed to delete lawyer.');
+            }
+        }
+    };
 
     const filteredLawyers = useMemo(() => {
         return lawyers.filter(lawyer =>
@@ -103,15 +272,13 @@ const LawyersPage: React.FC = () => {
     }, [lawyers, searchTerm]);
 
     return (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24">
-            <div className="text-center mb-12">
-                <h1 className="text-4xl md:text-5xl font-bold text-primary mb-4">Our Lawyers</h1>
-                <p className="text-lg text-secondary max-w-2xl mx-auto">
-                    Meet our team of dedicated and experienced legal professionals committed to delivering exceptional results.
-                </p>
+        <div>
+            <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-primary">Manage Lawyers</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Lawyer</Button>}
             </div>
 
-            <div className="mb-8 max-w-lg mx-auto">
+            <div className="mb-6">
                 <Input
                     type="text"
                     placeholder="Search for a lawyer by name..."
@@ -119,53 +286,56 @@ const LawyersPage: React.FC = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-             {error && <p className="text-center text-red-500 bg-red-100 p-3 rounded-lg mb-6">{error}</p>}
+             {error && <p className="text-red-500 bg-red-100 p-3 rounded-lg mb-6">{error}</p>}
 
             {loading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Spinner />
-                </div>
+                <div className="flex justify-center items-center h-64"><Spinner /></div>
             ) : (
                 <>
                     {filteredLawyers.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {filteredLawyers.map(lawyer => (
-                                <Card key={lawyer.id} className="text-center transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col items-center justify-between">
-                                    <div>
-                                        <div className="w-24 h-24 rounded-full bg-background flex items-center justify-center mb-4 border border-border">
-                                            <UsersIcon />
+                                <Card key={lawyer.id} className="p-6 flex flex-col justify-between transition-all duration-300 hover:shadow-lg hover:-translate-y-1 group">
+                                     <div>
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h2 className="text-lg font-semibold text-primary group-hover:text-accent transition-colors pr-2">{lawyer.name}</h2>
+                                            {isAdmin && (
+                                                <div className="flex-shrink-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <button onClick={() => handleOpenModal(lawyer)} className="p-1 text-secondary hover:text-primary"><EditIcon /></button>
+                                                    <button onClick={() => handleDelete(lawyer.id)} className="p-1 text-secondary hover:text-red-500"><DeleteIcon /></button>
+                                                </div>
+                                            )}
                                         </div>
-                                        <h2 className="text-xl font-semibold text-primary">{lawyer.name}</h2>
-                                        <p className="text-accent font-medium mt-1">Lawyer</p>
-                                        <p className="text-secondary text-sm mt-3">{lawyer.contactInfo}</p>
+                                        <p className="text-secondary text-sm mb-4">{lawyer.contactInfo}</p>
                                     </div>
-                                    {isAuthenticated && !user?.email?.includes(lawyer.contactInfo) && (
-                                         <Button variant="secondary" className="mt-4 w-full" onClick={() => handleOpenModal(lawyer)}>
-                                            <ChatBubbleIcon/> Ask Question
-                                         </Button>
-                                    )}
+                                    <div className="mt-4 pt-4 border-t border-border text-right">
+                                        <Link to={`/app/lawyers/${lawyer.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                    </div>
                                 </Card>
                             ))}
                         </div>
                     ) : (
                         <p className="text-center text-secondary mt-12">
-                            No lawyers found matching your search criteria.
+                            No lawyers found.
                         </p>
                     )}
                 </>
             )}
             
-            {selectedLawyer && (
-                <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={`Ask ${selectedLawyer.name} a Question`}>
-                    <AskQuestionForm
-                        lawyer={selectedLawyer}
-                        onSubmit={handleQuestionSubmit}
-                        onCancel={handleCloseModal}
-                    />
-                </Modal>
-            )}
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingLawyer ? 'Edit Lawyer' : 'Add New Lawyer'}>
+                <PersonForm
+                    initialData={editingLawyer}
+                    onSubmit={handleFormSubmit}
+                    onCancel={handleCloseModal}
+                />
+            </Modal>
         </div>
     );
+};
+
+const LawyersPage: React.FC = () => {
+    const { lawyerId } = useParams<{ lawyerId?: string }>();
+    return lawyerId ? <LawyerDetail lawyerId={lawyerId} /> : <LawyerList />;
 };
 
 export default LawyersPage;

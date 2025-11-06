@@ -51,9 +51,9 @@ const QuestionDetail: React.FC<{ questionId: string }> = ({ questionId }) => {
 
     return (
         <div>
-            <Link to="/app/questions" className="text-accent hover:underline mb-6 inline-block">&larr; Back to all questions</Link>
-            <Card>
-                <div className="p-6">
+            <Link to="/app/questions" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all questions</Link>
+            <Card className="p-6">
+                <div>
                     <p className="text-sm text-secondary mb-2">From: {question.questionerName} | Received: {new Date(question.createdAt).toLocaleString()}</p>
                     <h2 className="text-2xl font-semibold text-primary mb-4">Question:</h2>
                     <p className="text-primary whitespace-pre-wrap bg-background p-4 rounded-md">{question.content}</p>
@@ -122,8 +122,8 @@ const QuestionList: React.FC = () => {
                 <div className="space-y-4">
                     {questions.length > 0 ? (
                         questions.map(q => (
-                            <Card key={q.id} className="transition-all duration-300 hover:shadow-md hover:border-accent">
-                                <Link to={`/app/questions/${q.id}`} className="block">
+                            <Link to={`/app/questions/${q.id}`} key={q.id} className="block">
+                                <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-accent hover:-translate-y-0.5">
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p className="font-semibold text-primary truncate pr-4">{q.content}</p>
@@ -137,11 +137,11 @@ const QuestionList: React.FC = () => {
                                             )}
                                         </div>
                                     </div>
-                                </Link>
-                            </Card>
+                                </Card>
+                            </Link>
                         ))
                     ) : (
-                        <p className="text-center text-secondary py-10">You have no questions assigned to you.</p>
+                        <p className="text-center text-secondary py-16">You have no questions assigned to you.</p>
                     )}
                 </div>
             )}

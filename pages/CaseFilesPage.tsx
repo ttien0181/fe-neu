@@ -220,18 +220,18 @@ const CaseFilesPage: React.FC = () => {
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
                 <Card className="overflow-x-auto">
                     <table className="min-w-full">
-                        <thead>
+                        <thead className="bg-background">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">File Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Associated Case</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Path</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Type</th>
-                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider border-b-2 border-border">Actions</th>}
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">File Name</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Associated Case</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Path</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Type</th>
+                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Actions</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
                             {files.map(file => (
-                                <tr key={file.id} className="hover:bg-background">
+                                <tr key={file.id} className="hover:bg-background transition-colors">
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-primary">{file.fileName}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">{getCaseName(file.caseId)}</td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-secondary">{file.filePath}</td>
@@ -246,7 +246,7 @@ const CaseFilesPage: React.FC = () => {
                             ))}
                              {files.length === 0 && (
                                 <tr>
-                                    <td colSpan={isAdmin ? 5 : 4} className="text-center py-10 text-secondary">No files found.</td>
+                                    <td colSpan={isAdmin ? 5 : 4} className="text-center py-16 text-secondary">No files found.</td>
                                 </tr>
                             )}
                         </tbody>

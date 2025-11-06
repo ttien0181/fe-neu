@@ -40,6 +40,11 @@ export const UsersIcon = () => (
         <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
     </svg>
 );
+export const PeopleIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.995 5.995 0 0012 12a5.995 5.995 0 00-3-5.197" />
+    </svg>
+);
 export const LogoutIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 );
@@ -65,11 +70,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 export const Button: React.FC<ButtonProps> = ({ variant = 'primary', children, ...props }) => {
   const baseClasses = 'px-4 py-2 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center transform';
   const variantClasses = {
-    primary: 'bg-primary hover:bg-slate-800 text-white focus:ring-primary shadow-md hover:shadow-lg hover:-translate-y-px',
+    primary: 'bg-accent hover:bg-accent-hover text-white focus:ring-accent shadow-md hover:shadow-lg hover:-translate-y-px',
     secondary: 'bg-surface hover:bg-background text-primary border border-border focus:ring-accent',
     danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white shadow-md hover:shadow-lg hover:-translate-y-px',
   };
-  return <button className={`${baseClasses} ${variantClasses[variant]}`} {...props}>{children}</button>;
+  return <button className={`${baseClasses} ${variantClasses[variant]} ${props.className || ''}`} {...props}>{children}</button>;
 };
 
 // --- Label ---
@@ -81,23 +86,23 @@ export const Label: React.FC<LabelProps> = (props) => {
 // --- Input ---
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 export const Input: React.FC<InputProps> = (props) => {
-  return <input className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent" {...props} />;
+  return <input className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 // --- Select ---
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 export const Select: React.FC<SelectProps> = (props) => {
-  return <select className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent" {...props} />;
+  return <select className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 // --- Textarea ---
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 export const Textarea: React.FC<TextareaProps> = (props) => {
-    return <textarea className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent" {...props} />;
+    return <textarea className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 
 // --- Card ---
 interface CardProps { children: ReactNode; className?: string; }
 export const Card: React.FC<CardProps> = ({ children, className }) => {
-  return <div className={`bg-surface border border-border shadow-sm rounded-xl p-6 ${className}`}>{children}</div>;
+  return <div className={`bg-surface border border-border shadow-sm rounded-xl ${className}`}>{children}</div>;
 };
 
 // --- Modal ---
@@ -110,26 +115,38 @@ interface ModalProps {
 export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
     return (
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
+        onClick={onClose}
+      >
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 transition-opacity"
-            onClick={onClose}
+          className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] border border-border flex flex-col animate-scale-in"
+          onClick={(e) => e.stopPropagation()}
         >
-            <div
-                className="bg-surface rounded-lg shadow-xl w-[90vw] max-w-2xl max-h-[90vh] border border-border flex flex-col"
-                onClick={(e) => e.stopPropagation()}
+          <div className="flex justify-between items-center p-5 border-b border-border flex-shrink-0">
+            <h3 className="text-xl font-semibold text-primary">{title}</h3>
+            <button
+              onClick={onClose}
+              className="text-secondary hover:text-primary transition-colors text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-background"
             >
-                <div className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
-                    <h3 className="text-xl font-semibold text-primary">{title}</h3>
-                    <button
-                        onClick={onClose}
-                        className="text-secondary hover:text-primary text-2xl"
-                    >
-                        &times;
-                    </button>
-                </div>
-                <div className="flex-1 overflow-auto p-6">{children}</div>
-            </div>
+              &times;
+            </button>
+          </div>
+          <div className="flex-1 overflow-auto p-6">{children}</div>
         </div>
+        <style>{`
+          @keyframes fade-in {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes scale-in {
+            from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+          }
+          .animate-fade-in { animation: fade-in 0.2s ease-out forwards; }
+          .animate-scale-in { animation: scale-in 0.2s ease-out forwards; }
+        `}</style>
+      </div>
     );
 };
 

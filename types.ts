@@ -181,3 +181,14 @@ export interface QuestionResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+// CasePerson
+export interface CasePersonRequest {
+  caseId: number;
+  personId: number;
+}
+
+export interface CasePersonResponse {
+  caseId: number;
+  personId: number;
+}

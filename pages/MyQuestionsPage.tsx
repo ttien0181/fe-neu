@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
 import { QuestionResponse } from '../types';
@@ -45,7 +46,7 @@ const MyQuestionsPage: React.FC = () => {
                 <div className="space-y-4">
                     {questions.length > 0 ? (
                         questions.map(q => (
-                            <Card key={q.id}>
+                            <Card key={q.id} className="p-4">
                                 <div onClick={() => toggleExpand(q.id)} className="cursor-pointer">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -58,22 +59,26 @@ const MyQuestionsPage: React.FC = () => {
                                             ) : (
                                                 <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
                                             )}
-                                             <span className={`transform transition-transform ${expandedId === q.id ? 'rotate-180' : ''}`}>
+                                             <span className={`transform transition-transform text-secondary ${expandedId === q.id ? 'rotate-180' : ''}`}>
                                                 ▼
                                             </span>
                                         </div>
                                     </div>
                                 </div>
-                                {expandedId === q.id && q.answer && (
-                                    <div className="mt-4 pt-4 border-t border-border">
-                                        <h3 className="font-semibold text-primary mb-2">Answer:</h3>
-                                        <p className="text-primary whitespace-pre-wrap bg-background p-3 rounded-md">{q.answer}</p>
-                                    </div>
-                                )}
+                                <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedId === q.id ? 'max-h-screen mt-4 pt-4 border-t border-border' : 'max-h-0'}`}>
+                                    {q.answer ? (
+                                        <div>
+                                            <h3 className="font-semibold text-primary mb-2">Answer from {q.lawyerName}:</h3>
+                                            <p className="text-primary whitespace-pre-wrap bg-background p-3 rounded-md">{q.answer}</p>
+                                        </div>
+                                    ) : (
+                                        <p className="text-secondary italic">The lawyer has not answered this question yet.</p>
+                                    )}
+                                </div>
                             </Card>
                         ))
                     ) : (
-                        <p className="text-center text-secondary py-10">You have not asked any questions yet.</p>
+                        <p className="text-center text-secondary py-16">You have not asked any questions yet.</p>
                     )}
                 </div>
             )}
