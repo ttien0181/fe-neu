@@ -192,3 +192,22 @@ export interface CasePersonResponse {
   caseId: number;
   personId: number;
 }
+
+// Appointment
+export interface AppointmentRequest {
+  userId: number;
+  lawyerId: number;
+  appointmentTime: string; // Format "YYYY-MM-DDTHH:mm" for datetime-local input
+  notes?: string;
+}
+
+export interface AppointmentResponse {
+  id: number;
+  userName: string;
+  lawyerName: string;
+  lawyerRole: string;
+  lawyerEmail: string;
+  appointmentTime: string; // Format "yyyy-MM-dd HH:mm:ss" from backend
+  notes: string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+}

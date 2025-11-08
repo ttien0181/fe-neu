@@ -4,8 +4,10 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
 import { PersonResponse, PersonRequest, CaseResponse } from '../types';
-import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select } from '../components/ui';
+import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select, ChatBubbleIcon, CalendarIcon } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
+import { AskQuestionModal } from './MyQuestionsPage'; 
+import { BookingModal } from './MyAppointmentsPage';
 
 const PersonForm: React.FC<{
     initialData: PersonResponse | null;
@@ -116,8 +118,10 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     const [assignedCases, setAssignedCases] = useState<CaseResponse[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const { isAdmin } = useAuth();
+    const { isAdmin, isLawyer } = useAuth();
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+    const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
+    const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -164,12 +168,20 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     return (
         <div>
             <Link to="/app/lawyers" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all lawyers</Link>
-            <div className="flex justify-between items-start mb-8">
+            <div className="md:flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-bold text-primary mb-2">{lawyer.name}</h1>
                     <p className="text-secondary">{lawyer.contactInfo}</p>
                 </div>
-                 {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+                 <div className="flex gap-2 mt-4 md:mt-0">
+                    {!isLawyer && (
+                        <>
+                            <Button onClick={() => setIsQuestionModalOpen(true)} variant="secondary"><ChatBubbleIcon/>Ask a Question</Button>
+                            <Button onClick={() => setIsAppointmentModalOpen(true)}><CalendarIcon/>Book Appointment</Button>
+                        </>
+                    )}
+                    {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+                 </div>
             </div>
 
             <Card className="p-6">
@@ -184,7 +196,6 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                                 </div>
                                 <div className="flex items-center gap-4">
                                      <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
-                                     {/* Fix: Removed size-related classes as they are now handled by the `size` prop. */}
                                      {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
                                 </div>
                             </div>
@@ -199,6 +210,26 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                     person={lawyer}
                     onClose={() => setIsAssignModalOpen(false)}
                     onSave={fetchData}
+                />
+            )}
+             {isQuestionModalOpen && (
+                <AskQuestionModal 
+                    onClose={() => setIsQuestionModalOpen(false)} 
+                    onSuccess={() => {
+                        alert("Your question has been sent!");
+                        setIsQuestionModalOpen(false);
+                    }}
+                    initialLawyerId={lawyer.id}
+                />
+            )}
+            {isAppointmentModalOpen && (
+                <BookingModal 
+                    onClose={() => setIsAppointmentModalOpen(false)} 
+                    onSuccess={() => {
+                        alert("Your appointment request has been sent!");
+                        setIsAppointmentModalOpen(false);
+                    }}
+                    initialLawyerId={lawyer.id}
                 />
             )}
         </div>
@@ -275,7 +306,7 @@ const LawyerList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Manage Lawyers</h1>
+                <h1 className="text-3xl font-bold text-primary">Lawyers</h1>
                  {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Lawyer</Button>}
             </div>
 

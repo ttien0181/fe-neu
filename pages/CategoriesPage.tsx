@@ -165,7 +165,7 @@ const CategoryList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Manage Categories</h1>
+                <h1 className="text-3xl font-bold text-primary">Categories</h1>
                  {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Category</Button>}
             </div>
 

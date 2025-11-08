@@ -574,7 +574,7 @@ const CaseList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Manage Cases</h1>
+                <h1 className="text-3xl font-bold text-primary">Cases</h1>
                  {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon /> Add New Case</Button>}
             </div>
 

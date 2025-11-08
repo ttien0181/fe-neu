@@ -2,9 +2,88 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import * as api from '../services/apiService';
-import { QuestionResponse } from '../types';
+import { QuestionResponse, QuestionRequest, PersonResponse } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { Spinner, Card } from '../components/ui';
+import { Spinner, Card, Button, PlusIcon, Modal, Label, Select, Textarea } from '../components/ui';
+
+export const AskQuestionModal: React.FC<{
+    onClose: () => void;
+    onSuccess: () => void;
+    initialLawyerId?: number;
+}> = ({ onClose, onSuccess, initialLawyerId }) => {
+    const { user } = useAuth();
+    const [lawyers, setLawyers] = useState<PersonResponse[]>([]);
+    const [lawyerId, setLawyerId] = useState(initialLawyerId?.toString() || '');
+    const [content, setContent] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchLawyers = async () => {
+            try {
+                const persons = await api.getPersons();
+                const lawyerList = persons.filter(p => p.role.toLowerCase() === 'lawyer');
+                setLawyers(lawyerList);
+                if (lawyerList.length > 0 && !initialLawyerId) {
+                    setLawyerId(lawyerList[0].id.toString());
+                }
+            } catch (err) {
+                setError('Failed to load lawyers list.');
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchLawyers();
+    }, [initialLawyerId]);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        if (!user || !lawyerId || !content) {
+            setError('Please select a lawyer and write your question.');
+            return;
+        }
+
+        const requestData: QuestionRequest = {
+            idQuestioner: user.id,
+            idLawyerPerson: Number(lawyerId),
+            content: content,
+        };
+
+        try {
+            await api.createQuestion(requestData);
+            onSuccess();
+            onClose();
+        } catch (err: any) {
+            setError(err.message || 'Failed to send question.');
+        }
+    };
+
+    return (
+        <Modal isOpen={true} onClose={onClose} title="Ask a Question">
+            {loading ? <Spinner /> : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    {error && <p className="text-red-500 text-sm">{error}</p>}
+                    <div>
+                        <Label htmlFor="lawyerId">To Lawyer</Label>
+                        <Select id="lawyerId" value={lawyerId} onChange={e => setLawyerId(e.target.value)} required disabled={!!initialLawyerId}>
+                            {lawyers.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
+                        </Select>
+                    </div>
+                    <div>
+                        <Label htmlFor="content">Your Question</Label>
+                        <Textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={6} required />
+                    </div>
+                    <div className="flex justify-end gap-4 pt-4">
+                        <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+                        <Button type="submit">Send Question</Button>
+                    </div>
+                </form>
+            )}
+        </Modal>
+    );
+};
+
 
 const MyQuestionsPage: React.FC = () => {
     const [questions, setQuestions] = useState<QuestionResponse[]>([]);
@@ -12,6 +91,7 @@ const MyQuestionsPage: React.FC = () => {
     const [error, setError] = useState('');
     const { user } = useAuth();
     const [expandedId, setExpandedId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const fetchQuestions = useCallback(async () => {
         if (!user) {
@@ -40,7 +120,11 @@ const MyQuestionsPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-primary mb-8">My Questions</h1>
+             <div className="flex justify-between items-center mb-8">
+                <h1 className="text-3xl font-bold text-primary">My Questions</h1>
+                <Button onClick={() => setIsModalOpen(true)}><PlusIcon /> Ask a New Question</Button>
+            </div>
+            
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
                 <div className="space-y-4">
@@ -78,10 +162,13 @@ const MyQuestionsPage: React.FC = () => {
                             </Card>
                         ))
                     ) : (
-                        <p className="text-center text-secondary py-16">You have not asked any questions yet.</p>
+                        <Card className="text-center p-16">
+                            <p className="text-secondary">You have not asked any questions yet.</p>
+                        </Card>
                     )}
                 </div>
             )}
+            {isModalOpen && <AskQuestionModal onClose={() => setIsModalOpen(false)} onSuccess={fetchQuestions} />}
         </div>
     );
 };

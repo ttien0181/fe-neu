@@ -1,4 +1,4 @@
-import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse, SendVerificationCodeRequest, UserResponse, ForgotPasswordRequest, ResetPasswordRequest, QuestionRequest, QuestionResponse, CasePersonRequest, CasePersonResponse } from '../types';
+import { APIResponse, AuthRequest, RegisterRequest, AuthResponse, CaseRequest, CaseResponse, CategoryRequest, CategoryResponse, PersonRequest, PersonResponse, CaseTagRequest, CaseTagResponse, CaseFileRequest, CaseFileResponse, AuditLogRequest, AuditLogResponse, SendVerificationCodeRequest, UserResponse, ForgotPasswordRequest, ResetPasswordRequest, QuestionRequest, QuestionResponse, CasePersonRequest, CasePersonResponse, AppointmentRequest, AppointmentResponse } from '../types';
 
 export const BASE_URL = 'http://localhost:8080/legal-case-management/api';
 
@@ -127,3 +127,8 @@ export const getQuestionsByUser = (userId: number): Promise<QuestionResponse[]> 
 export const getCasePersons = (): Promise<CasePersonResponse[]> => fetchApi<CasePersonResponse[]>('/case-persons');
 export const createCasePerson = (data: CasePersonRequest): Promise<CasePersonResponse> => fetchApi<CasePersonResponse>('/case-persons', { method: 'POST', body: JSON.stringify(data) });
 export const deleteCasePerson = (caseId: number, personId: number): Promise<null> => fetchApi<null>(`/case-persons/${caseId}/${personId}`, { method: 'DELETE' });
+
+// Appointments
+export const createAppointment = (data: AppointmentRequest): Promise<AppointmentResponse> => fetchApi<AppointmentResponse>('/appointments', { method: 'POST', body: JSON.stringify(data) });
+export const getAllAppointments = (): Promise<AppointmentResponse[]> => fetchApi<AppointmentResponse[]>('/appointments');
+export const updateAppointmentStatus = (id: number, status: string): Promise<AppointmentResponse> => fetchApi<AppointmentResponse>(`/appointments/${id}/status?status=${encodeURIComponent(status)}`, { method: 'PUT' });
