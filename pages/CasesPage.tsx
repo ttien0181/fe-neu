@@ -292,6 +292,18 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
         fetchAllData();
     }, [fetchAllData]);
 
+    const handleDeleteFile = async (fileId: number) => {
+        if (window.confirm('Are you sure you want to permanently delete this file? This action cannot be undone.')) {
+            try {
+                await api.deleteCaseFile(fileId);
+                setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
+            } catch (error) {
+                console.error("Failed to delete file:", error);
+                alert('Failed to delete the file.');
+            }
+        }
+    };
+
     const handlePreview = async (file: CaseFileResponse) => {
         try {
             const response = await fetch(`${BASE_URL}/casefiles/preview/${file.caseId}/${file.fileName}`, {
@@ -409,6 +421,11 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                                         <div className="flex items-center gap-2">
                                             <button onClick={() => handlePreview(file)} title="Preview" className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><EyeIcon /></button>
                                             <button onClick={() => handleDownload(file)} title="Download" className="p-2 text-secondary hover:text-primary hover:bg-border rounded-full transition-colors"><DownloadIcon /></button>
+                                            {isAdmin && (
+                                                <button onClick={() => handleDeleteFile(file.id)} title="Delete" className="p-2 text-secondary hover:text-red-500 hover:bg-border rounded-full transition-colors">
+                                                    <DeleteIcon />
+                                                </button>
+                                            )}
                                         </div>
                                     </li>
                                 ))}

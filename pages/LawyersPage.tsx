@@ -184,7 +184,8 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                                 </div>
                                 <div className="flex items-center gap-4">
                                      <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
-                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
+                                     {/* Fix: Removed size-related classes as they are now handled by the `size` prop. */}
+                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
                                 </div>
                             </div>
                         ))}

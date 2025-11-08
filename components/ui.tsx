@@ -65,16 +65,26 @@ export const ChatBubbleIcon = () => (
 // --- Button ---
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
+  // Fix: Add size prop to ButtonProps to allow for different button sizes.
+  size?: 'default' | 'sm' | 'lg';
   children: ReactNode;
 }
-export const Button: React.FC<ButtonProps> = ({ variant = 'primary', children, ...props }) => {
-  const baseClasses = 'px-4 py-2 rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center transform';
+export const Button: React.FC<ButtonProps> = ({ variant = 'primary', size = 'default', children, ...props }) => {
+  // Fix: Move size-specific classes out of baseClasses.
+  const baseClasses = 'rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center transform';
   const variantClasses = {
     primary: 'bg-accent hover:bg-accent-hover text-white focus:ring-accent shadow-md hover:shadow-lg hover:-translate-y-px',
     secondary: 'bg-surface hover:bg-background text-primary border border-border focus:ring-accent',
     danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white shadow-md hover:shadow-lg hover:-translate-y-px',
   };
-  return <button className={`${baseClasses} ${variantClasses[variant]} ${props.className || ''}`} {...props}>{children}</button>;
+  // Fix: Define size classes to be applied based on the size prop.
+  const sizeClasses = {
+    default: 'px-4 py-2',
+    sm: 'px-2 py-1 text-xs',
+    lg: 'px-6 py-3 text-lg',
+  };
+  // Fix: Combine base, variant, size, and custom classes.
+  return <button className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${props.className || ''}`} {...props}>{children}</button>;
 };
 
 // --- Label ---
