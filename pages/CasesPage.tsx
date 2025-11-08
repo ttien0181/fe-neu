@@ -65,8 +65,12 @@ const CaseForm: React.FC<{
             try {
                 await api.deleteCaseFile(fileId);
                 setExistingFiles(prev => prev.filter(f => f.id !== fileId));
-            } catch (error) {
-                alert('Failed to delete file.');
+            } catch (error: any) {
+                if (error.message && error.message.toLowerCase().includes('foreign key constraint fails')) {
+                    alert('Cannot delete this file. It may be referenced by other records (e.g., audit logs).');
+                } else {
+                    alert('Failed to delete file.');
+                }
             }
         }
     };
@@ -294,12 +298,17 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
 
     const handleDeleteFile = async (fileId: number) => {
         if (window.confirm('Are you sure you want to permanently delete this file? This action cannot be undone.')) {
+            setError('');
             try {
                 await api.deleteCaseFile(fileId);
                 setFiles(prevFiles => prevFiles.filter(f => f.id !== fileId));
-            } catch (error) {
-                console.error("Failed to delete file:", error);
-                alert('Failed to delete the file.');
+            } catch (err: any) {
+                console.error("Failed to delete file:", err);
+                if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
+                    setError('Cannot delete this file. It may be referenced by other records (e.g., audit logs).');
+                } else {
+                    setError(err.message || 'Failed to delete the file.');
+                }
             }
         }
     };
@@ -355,7 +364,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     };
 
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
-    if (error) return <p className="text-red-500">{error}</p>;
+    if (error && !isPreviewOpen) return <p className="text-red-500">{error}</p>;
     if (!caseItem) return <p>Case not found.</p>;
 
     const groupedPersons = associatedPersons.reduce((acc, person) => {
@@ -371,6 +380,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     return (
         <div>
             <Link to="/app/cases" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all cases</Link>
+            {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             <div className="flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-bold text-primary mb-2">{caseItem.caseName}</h1>
@@ -500,6 +510,7 @@ const CaseList: React.FC = () => {
     };
 
     const handleOpenModal = (caseItem: CaseResponse | null = null) => {
+        setError('');
         setEditingCase(caseItem);
         setIsModalOpen(true);
     };
@@ -547,11 +558,16 @@ const CaseList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this case? This action cannot be undone.')) {
+            setError('');
             try {
                 await api.deleteCase(id);
                 fetchCasesAndCategories();
             } catch (err: any) {
-                setError(err.message || 'Failed to delete case.');
+                if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
+                    setError('Cannot delete this case. It has associated files or persons. Please remove them before deleting the case.');
+                } else {
+                    setError(err.message || 'Failed to delete case.');
+                }
             }
         }
     };

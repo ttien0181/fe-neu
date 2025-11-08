@@ -124,6 +124,7 @@ const CategoryList: React.FC = () => {
     }, [fetchCategories]);
 
     const handleOpenModal = (category: CategoryResponse | null = null) => {
+        setError('');
         setEditingCategory(category);
         setIsModalOpen(true);
     };
@@ -149,11 +150,16 @@ const CategoryList: React.FC = () => {
 
     const handleDelete = async (id: number) => {
         if (window.confirm('Are you sure you want to delete this category?')) {
+            setError('');
             try {
                 await api.deleteCategory(id);
                 fetchCategories();
             } catch (err: any) {
-                setError(err.message || 'Failed to delete category.');
+                if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
+                    setError('Cannot delete this category. It is currently associated with one or more cases. Please reassign or delete the associated cases first.');
+                } else {
+                    setError(err.message || 'Failed to delete category.');
+                }
             }
         }
     };

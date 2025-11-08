@@ -263,6 +263,7 @@ const LawyerList: React.FC = () => {
     }, [fetchLawyers]);
 
     const handleOpenModal = (lawyer: PersonResponse | null = null) => {
+        setError('');
         setEditingLawyer(lawyer);
         setIsModalOpen(true);
     };
@@ -288,11 +289,16 @@ const LawyerList: React.FC = () => {
     
     const handleDelete = async (id: number) => {
         if (window.confirm("Are you sure you want to delete this lawyer? They will be unassigned from all cases.")) {
+            setError('');
             try {
                 await api.deletePerson(id);
                 fetchLawyers();
             } catch (err: any) {
-                setError(err.message || 'Failed to delete lawyer.');
+                if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
+                    setError('Cannot delete this lawyer. They are associated with questions, appointments, or cases. Please reassign or remove these associations first.');
+                } else {
+                    setError(err.message || 'Failed to delete lawyer.');
+                }
             }
         }
     };

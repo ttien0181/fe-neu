@@ -239,6 +239,7 @@ const PersonList: React.FC = () => {
     };
 
     const handleOpenModal = (person: PersonResponse | null = null) => {
+        setError('');
         setEditingPerson(person);
         setIsModalOpen(true);
     };
@@ -264,11 +265,16 @@ const PersonList: React.FC = () => {
     
     const handleDelete = async (id: number) => {
         if (window.confirm("Are you sure you want to delete this person? They will be unassigned from all cases.")) {
+            setError('');
             try {
                 await api.deletePerson(id);
                 fetchPersons();
             } catch (err: any) {
-                setError(err.message || 'Failed to delete person.');
+                if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
+                    setError('Cannot delete this person. They are currently associated with one or more cases. Please remove them from all cases first.');
+                } else {
+                    setError(err.message || 'Failed to delete person.');
+                }
             }
         }
     };
