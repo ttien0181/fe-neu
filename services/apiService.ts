@@ -61,8 +61,8 @@ export const sendVerificationCode = (data: SendVerificationCodeRequest): Promise
         body: JSON.stringify(data),
     });
 
-export const register = (userData: RegisterRequest): Promise<UserResponse> => 
-    fetchApi<UserResponse>('/auth/register', {
+export const register = (userData: RegisterRequest): Promise<string> => 
+    fetchApi<string>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),
     });
