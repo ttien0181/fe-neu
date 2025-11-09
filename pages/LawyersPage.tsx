@@ -245,6 +245,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                         <div className="w-full h-80">
                             <ResponsiveContainer>
                                 <PieChart>
+                                    {/* Fix: Explicitly type the label props to resolve "The left-hand side of an arithmetic operation must be of type 'any'..." error. */}
                                     <Pie 
                                         data={casesByCategory} 
                                         cx="50%" 
@@ -254,7 +255,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                                         fill="#8884d8" 
                                         dataKey="value" 
                                         nameKey="name" 
-                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                        label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                                     >
                                         {casesByCategory.map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />

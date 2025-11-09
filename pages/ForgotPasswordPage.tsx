@@ -27,8 +27,8 @@ const ForgotPasswordPage: React.FC = () => {
         setIsLoading(true);
         try {
             const responseMessage = await api.sendPasswordResetCode({ email });
-            setSuccess(responseMessage);
             setStep(2);
+            setSuccess('');
         } catch (err: any) {
             setError(err.message || 'Failed to send reset code. Make sure the email is registered.');
         } finally {
@@ -44,6 +44,7 @@ const ForgotPasswordPage: React.FC = () => {
         try {
             const responseMessage = await api.resetPassword({ email, newPassword, verificationCode });
             setSuccess(`${responseMessage} You can now log in with your new password.`);
+            console.log(success);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {
             setError(err.message || 'Failed to reset password. Please check the code and try again.');
@@ -51,6 +52,14 @@ const ForgotPasswordPage: React.FC = () => {
             setIsLoading(false);
         }
     };
+
+    console.log("STATE DEBUG:", {
+    step,
+    isLoading,
+    success,
+    disabledCondition: isLoading || (!!success && step === 2),
+    });
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background pt-20 px-4">

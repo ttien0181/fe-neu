@@ -245,6 +245,87 @@ const ManageCasePersonsModal: React.FC<{
     );
 };
 
+const UploadFileModal: React.FC<{
+    caseItem: CaseResponse;
+    onClose: () => void;
+    onSuccess: () => void;
+}> = ({ caseItem, onClose, onSuccess }) => {
+    const { user } = useAuth();
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setError('');
+        setSelectedFile(null);
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            if (file.type !== 'application/pdf') {
+                setError('Only PDF files are allowed.');
+                return;
+            }
+            const MAX_SIZE = 200 * 1024 * 1024; // 200MB
+            if (file.size > MAX_SIZE) {
+                setError('File size exceeds the 200MB limit.');
+                return;
+            }
+            setSelectedFile(file);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!selectedFile || !user) {
+            setError('Please select a file.');
+            return;
+        }
+        setError('');
+        setIsLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('caseId', caseItem.id.toString());
+            formData.append('fileName', selectedFile.name);
+            formData.append('filePath', `/files/${caseItem.id}`);
+            formData.append('fileType', 'pdf');
+            if (user?.id) {
+                formData.append('uploadedBy', user.id.toString());
+            }
+            await api.createCaseFile(formData);
+            onSuccess();
+            onClose();
+        } catch (err: any) {
+            setError(err.message || 'Failed to upload file.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        <Modal isOpen={true} onClose={onClose} title={`Upload File to ${caseItem.caseName}`}>
+            <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                    <Label htmlFor="file-upload">Select File</Label>
+                    <Input id="file-upload" type="file" accept=".pdf" onChange={handleFileChange} />
+                    <p className="text-xs text-secondary mt-1">Maximum file size: 200MB. Only PDF files are allowed.</p>
+                </div>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                {selectedFile && !error && (
+                    <p className="text-sm text-primary bg-background p-2 rounded-md">
+                        Selected: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                )}
+                <div className="flex justify-end gap-4 pt-4 border-t border-border">
+                    <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>Cancel</Button>
+                    <Button type="submit" disabled={!selectedFile || !!error || isLoading}>
+                        {isLoading ? 'Uploading...' : 'Upload'}
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+    );
+};
+
 
 const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     const [caseItem, setCaseItem] = useState<CaseResponse | null>(null);
@@ -257,6 +338,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     const [previewFile, setPreviewFile] = useState<CaseFileResponse | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isManagePersonsModalOpen, setIsManagePersonsModalOpen] = useState(false);
+    const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
     const { isAdmin } = useAuth();
     const token = localStorage.getItem('authToken');
 
@@ -422,7 +504,10 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                     </Card>
 
                     <Card className="p-6">
-                        <h2 className="text-2xl font-semibold mb-4 text-primary">Case Files</h2>
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-2xl font-semibold text-primary">Case Files</h2>
+                             {isAdmin && <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}><PlusIcon/> Upload File</Button>}
+                        </div>
                         {files.length > 0 ? (
                             <ul className="space-y-3">
                                 {files.map(file => (
@@ -472,6 +557,13 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                     onClose={() => setIsManagePersonsModalOpen(false)}
                     onSave={fetchAllData}
                 />
+            )}
+            {isUploadModalOpen && caseItem && (
+                 <UploadFileModal
+                    caseItem={caseItem}
+                    onClose={() => setIsUploadModalOpen(false)}
+                    onSuccess={fetchAllData}
+                 />
             )}
         </div>
     );

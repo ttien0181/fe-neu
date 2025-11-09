@@ -140,7 +140,8 @@ const DashboardPage: React.FC = () => {
                                 <div className="w-full h-80">
                                     <ResponsiveContainer>
                                         <PieChart>
-                                            <Pie data={personsByRole} cx="50%" cy="50%" labelLine={false} outerRadius={100} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                                            {/* Fix: Explicitly type the label props to resolve "The left-hand side of an arithmetic operation must be of type 'any'..." error. */}
+                                            <Pie data={personsByRole} cx="50%" cy="50%" labelLine={false} outerRadius={100} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}>
                                                 {personsByRole.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                                                 ))}
