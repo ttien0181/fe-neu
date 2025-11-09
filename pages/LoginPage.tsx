@@ -10,7 +10,7 @@ const Logo = ({ className = 'h-6 w-6', color = '#4f46e5' }) => (
 );
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
@@ -21,7 +21,7 @@ const LoginPage: React.FC = () => {
     setError('');
     setIsLoading(true);
     try {
-      await login({ username, password });
+      await login({ email, password });
     } catch (err: any) {
       setError(err.message || 'Failed to log in. Please check your credentials.');
     } finally {
@@ -41,14 +41,14 @@ const LoginPage: React.FC = () => {
           <p className="text-center text-secondary mb-8">Sign in to access your dashboard.</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label htmlFor="username">Username</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Enter your username"
+                placeholder="Enter your email"
               />
             </div>
             <div>
