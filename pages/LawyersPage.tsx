@@ -3,11 +3,12 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import * as api from '../services/apiService';
-import { PersonResponse, PersonRequest, CaseResponse } from '../types';
+import { PersonResponse, PersonRequest, CaseResponse, CategoryResponse } from '../types';
 import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select, ChatBubbleIcon, CalendarIcon } from '../components/ui';
 import { useAuth } from '../contexts/AuthContext';
 import { AskQuestionModal } from './MyQuestionsPage'; 
 import { BookingModal } from './MyAppointmentsPage';
+import { ResponsiveContainer, PieChart, Pie, Cell, Legend, Tooltip } from 'recharts';
 
 const PersonForm: React.FC<{
     initialData: PersonResponse | null;
@@ -116,6 +117,7 @@ const AssignCaseModal: React.FC<{
 const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     const [lawyer, setLawyer] = useState<PersonResponse | null>(null);
     const [assignedCases, setAssignedCases] = useState<CaseResponse[]>([]);
+    const [casesByCategory, setCasesByCategory] = useState<{ name: string; value: number }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const { isAdmin, isLawyer } = useAuth();
@@ -129,15 +131,43 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
             const lawyerData = await api.getPersonById(Number(lawyerId));
             if (lawyerData.role.toLowerCase() !== 'lawyer') {
                 setError("This person is not a lawyer.");
+                setLoading(false);
                 return;
             }
             setLawyer(lawyerData);
 
-            const [allCases, allCasePersons] = await Promise.all([api.getCases(), api.getCasePersons()]);
+            const [allCases, allCasePersons, allCategories] = await Promise.all([
+                api.getCases(), 
+                api.getCasePersons(),
+                api.getCategories()
+            ]);
+
             const caseIds = allCasePersons
                 .filter(cp => cp.personId === Number(lawyerId))
                 .map(cp => cp.caseId);
-            setAssignedCases(allCases.filter(c => caseIds.includes(c.id)));
+            
+            const currentAssignedCases = allCases.filter(c => caseIds.includes(c.id));
+            setAssignedCases(currentAssignedCases);
+
+            if (currentAssignedCases.length > 0 && allCategories.length > 0) {
+                const categoryCounts = currentAssignedCases.reduce((acc, currentCase) => {
+                    const categoryId = currentCase.categoryId;
+                    acc[categoryId] = (acc[categoryId] || 0) + 1;
+                    return acc;
+                }, {} as Record<number, number>);
+
+                const chartData = Object.entries(categoryCounts).map(([categoryId, count]) => {
+                    const category = allCategories.find(c => c.id === Number(categoryId));
+                    return {
+                        name: category ? category.name : 'Unknown Category',
+                        value: count
+                    };
+                });
+                setCasesByCategory(chartData);
+            } else {
+                setCasesByCategory([]);
+            }
+
         } catch (err) {
             setError("Failed to load lawyer details.");
         } finally {
@@ -165,6 +195,8 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     if (error) return <p className="text-red-500">{error}</p>;
     if (!lawyer) return <p>Lawyer not found.</p>;
     
+    const PIE_COLORS = ['#4f46e5', '#14b8a6', '#f59e0b', '#ef4444', '#64748b', '#3b82f6'];
+
     return (
         <div>
             <Link to="/app/lawyers" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all lawyers</Link>
@@ -184,27 +216,61 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                  </div>
             </div>
 
-            <Card className="p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Assigned Cases ({assignedCases.length})</h2>
-                {assignedCases.length > 0 ? (
-                    <div className="divide-y divide-border -mx-6">
-                        {assignedCases.map(caseItem => (
-                            <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors group">
-                                <div>
-                                    <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
-                                    <p className="text-sm text-secondary">{caseItem.courtName}</p>
+            <div className="space-y-8">
+                <Card className="p-6">
+                    <h2 className="text-2xl font-semibold mb-4 text-primary">Assigned Cases ({assignedCases.length})</h2>
+                    {assignedCases.length > 0 ? (
+                        <div className="divide-y divide-border -mx-6">
+                            {assignedCases.map(caseItem => (
+                                <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors group">
+                                    <div>
+                                        <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
+                                        <p className="text-sm text-secondary">{caseItem.courtName}</p>
+                                    </div>
+                                    <div className="flex items-center gap-4">
+                                         <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
+                                         {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
+                                    </div>
                                 </div>
-                                <div className="flex items-center gap-4">
-                                     <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
-                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p className="text-secondary py-8 text-center">This lawyer is not assigned to any cases yet.</p>
-                )}
-            </Card>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-secondary py-8 text-center">This lawyer is not assigned to any cases yet.</p>
+                    )}
+                </Card>
+
+                <Card className="p-6">
+                    <h2 className="text-2xl font-semibold text-primary mb-4">Case Category Distribution</h2>
+                    {casesByCategory.length > 0 ? (
+                        <div className="w-full h-80">
+                            <ResponsiveContainer>
+                                <PieChart>
+                                    <Pie 
+                                        data={casesByCategory} 
+                                        cx="50%" 
+                                        cy="50%" 
+                                        labelLine={false} 
+                                        outerRadius={100} 
+                                        fill="#8884d8" 
+                                        dataKey="value" 
+                                        nameKey="name" 
+                                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                    >
+                                        {casesByCategory.map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
+                                        ))}
+                                    </Pie>
+                                    <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.5rem' }} />
+                                    <Legend />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                    ) : (
+                        <p className="text-secondary py-8 text-center">No case category data to display.</p>
+                    )}
+                </Card>
+            </div>
+
             {isAssignModalOpen && (
                 <AssignCaseModal 
                     person={lawyer}
