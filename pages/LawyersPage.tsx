@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import * as api from '../services/apiService';
 import { PersonResponse, PersonRequest, CaseResponse, CategoryResponse } from '../types';
 import { Card, Spinner, Input, UsersIcon, Button, Modal, Label, PlusIcon, EditIcon, DeleteIcon, Select, ChatBubbleIcon, CalendarIcon } from '../components/ui';
@@ -117,6 +117,7 @@ const AssignCaseModal: React.FC<{
 const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     const [lawyer, setLawyer] = useState<PersonResponse | null>(null);
     const [assignedCases, setAssignedCases] = useState<CaseResponse[]>([]);
+    const [categories, setCategories] = useState<CategoryResponse[]>([]);
     const [casesByCategory, setCasesByCategory] = useState<{ name: string; value: number }[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -124,6 +125,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
     const [isQuestionModalOpen, setIsQuestionModalOpen] = useState(false);
     const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
         try {
@@ -141,6 +143,8 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                 api.getCasePersons(),
                 api.getCategories()
             ]);
+            
+            setCategories(allCategories);
 
             const caseIds = allCasePersons
                 .filter(cp => cp.personId === Number(lawyerId))
@@ -191,6 +195,10 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
         }
     };
     
+    const getCategoryName = (categoryId: number) => {
+        return categories.find(c => c.id === categoryId)?.name || 'Unknown';
+    };
+    
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
     if (!lawyer) return <p>Lawyer not found.</p>;
@@ -217,25 +225,60 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
             </div>
 
             <div className="space-y-8">
-                <Card className="p-6">
-                    <h2 className="text-2xl font-semibold mb-4 text-primary">Assigned Cases ({assignedCases.length})</h2>
+                <Card className="overflow-hidden">
+                    <div className="p-6 border-b border-border">
+                        <h2 className="text-2xl font-semibold text-primary">Assigned Cases ({assignedCases.length})</h2>
+                    </div>
                     {assignedCases.length > 0 ? (
-                        <div className="divide-y divide-border -mx-6">
-                            {assignedCases.map(caseItem => (
-                                <div key={caseItem.id} className="py-4 px-6 flex justify-between items-center hover:bg-background transition-colors group">
-                                    <div>
-                                        <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
-                                        <p className="text-sm text-secondary">{caseItem.courtName}</p>
-                                    </div>
-                                    <div className="flex items-center gap-4">
-                                         <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
-                                         {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
-                                    </div>
-                                </div>
-                            ))}
+                        <div className="overflow-x-auto">
+                            <table className="min-w-full text-left text-sm">
+                                <thead className="bg-background/50">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Case Name</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Court</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Location</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Category</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Status</th>
+                                        {isAdmin && <th className="px-6 py-4 font-semibold text-secondary text-right">Actions</th>}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-border">
+                                    {assignedCases.map(caseItem => (
+                                        <tr 
+                                            key={caseItem.id} 
+                                            onClick={() => navigate(`/app/cases/${caseItem.id}`)}
+                                            className="hover:bg-accent/5 transition-colors cursor-pointer"
+                                        >
+                                            <td className="px-6 py-4 font-medium text-primary">{caseItem.caseName}</td>
+                                            <td className="px-6 py-4 text-secondary">{caseItem.courtName || '-'}</td>
+                                            <td className="px-6 py-4 text-secondary">{caseItem.location || '-'}</td>
+                                            <td className="px-6 py-4 text-secondary">{getCategoryName(caseItem.categoryId)}</td>
+                                            <td className="px-6 py-4">
+                                                <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">
+                                                    {caseItem.status}
+                                                </span>
+                                            </td>
+                                            {isAdmin && (
+                                                <td className="px-6 py-4 text-right">
+                                                    <Button 
+                                                        variant="danger" 
+                                                        size="sm" 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleRemoveFromCase(caseItem.id);
+                                                        }}
+                                                    >
+                                                        Remove
+                                                    </Button>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     ) : (
-                        <p className="text-secondary py-8 text-center">This lawyer is not assigned to any cases yet.</p>
+                        <p className="p-8 text-secondary text-center">This lawyer is not assigned to any cases yet.</p>
                     )}
                 </Card>
 
