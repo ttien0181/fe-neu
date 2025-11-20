@@ -53,7 +53,8 @@ export const BookingModal: React.FC<{
         appointmentDateTime.setHours(hours, minutes);
 
         // Format to "YYYY-MM-DDTHH:mm"
-        const formattedDateTime = appointmentDateTime.toISOString().slice(0, 16);
+        const pad = (n: number) => n.toString().padStart(2, '0');
+        const formattedDateTime = `${appointmentDateTime.getFullYear()}-${pad(appointmentDateTime.getMonth() + 1)}-${pad(appointmentDateTime.getDate())}T${pad(appointmentDateTime.getHours())}:${pad(appointmentDateTime.getMinutes())}`;
 
         const requestData: AppointmentRequest = {
             userId: user.id,

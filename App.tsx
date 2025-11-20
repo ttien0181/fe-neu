@@ -38,7 +38,7 @@ const Header = () => (
         <NavLink to="/" className={({ isActive }) => `text-secondary hover:text-primary transition-colors ${isActive ? 'text-primary font-semibold' : ''}`}>About</NavLink>
       </nav>
       <div className="flex items-center gap-2">
-        <Link to="/login" className="px-4 py-2 rounded-lg text-primary font-semibold hover:bg-background transition-colors duration-300">
+        <Link to="/login" className="px-4 py-2 rounded-lg text-black bg-background border border-gray hover:secondary-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px">
           Log in
         </Link>
         <Link to="/register" className="px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px">

@@ -16,7 +16,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   // const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
-  
   console.log("DEBUG upload endpoint:", endpoint);
   console.log("DEBUG upload headers:", headers);
   console.log("DEBUG upload body type:", options.body instanceof FormData ? 'FormData' : typeof options.body);
@@ -39,7 +38,6 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     const errorMessage = errorResponse.errors?.map(e => e.errorMessage).join(', ') || `HTTP error! status: ${response.status}`;
     throw new Error(errorMessage);
   }
-  
   const apiResponse = data as APIResponse<T>;
   if (apiResponse.status === 'SUCCESS' || apiResponse.status === 'OK') {
       return apiResponse.result;
@@ -61,7 +59,7 @@ export const sendVerificationCode = (data: SendVerificationCodeRequest): Promise
         body: JSON.stringify(data),
     });
 
-export const register = (userData: RegisterRequest): Promise<string> => 
+export const register = (userData: RegisterRequest): Promise<string> =>
     fetchApi<string>('/auth/register', {
         method: 'POST',
         body: JSON.stringify(userData),

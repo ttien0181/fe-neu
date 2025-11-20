@@ -69,7 +69,7 @@ const LoginPage: React.FC = () => {
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div>
-              <Button type="submit" className="w-full py-3" disabled={isLoading}>
+              <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
               </Button>
             </div>

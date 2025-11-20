@@ -84,7 +84,7 @@ const RegisterPage: React.FC = () => {
                 />
               </div>
               <div>
-                <Button type="submit" className="w-full py-3" disabled={isLoading}>
+                <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading}>
                   {isLoading ? 'Sending Code...' : 'Send Verification Code'}
                 </Button>
               </div>
@@ -126,7 +126,7 @@ const RegisterPage: React.FC = () => {
               </div>
               {success && step === 2 && <p className="text-green-600 text-sm">{success}</p>}
               <div>
-                <Button type="submit" className="w-full py-3" disabled={isLoading || isRegistrationComplete}>
+                <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading || isRegistrationComplete}>
                   {isLoading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </div>
