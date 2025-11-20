@@ -9,7 +9,7 @@ import DashboardPage from './pages/DashboardPage';
 import CasesPage from './pages/CasesPage';
 import CategoriesPage from './pages/CategoriesPage';
 import AboutPage from './pages/AboutPage';
-import RegisterPage from './pages/CaseTagsPage';
+import RegisterPage from './pages/RegisterPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
