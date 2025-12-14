@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { DashboardIcon, CasesIcon, CategoriesIcon, PeopleIcon, LogoutIcon, HamburgerIcon, ChevronDownIcon, UsersIcon, BellIcon, ChatBubbleIcon, CalendarIcon, ChevronDoubleLeftIcon } from '../components/ui';
+import { DashboardIcon, CasesIcon, CategoriesIcon, PeopleIcon, LogoutIcon, HamburgerIcon, ChevronDownIcon, UsersIcon, BellIcon, ChatBubbleIcon, CalendarIcon, ChevronDoubleLeftIcon, ReportIcon } from '../components/ui';
 import * as api from '../services/apiService';
 import { QuestionResponse, AppointmentResponse } from '../types';
 
@@ -175,7 +175,7 @@ const UserMenu: React.FC = () => {
 
 
 const NavItems: React.FC<{onLinkClick?: () => void, isCollapsed: boolean}> = ({ onLinkClick, isCollapsed }) => {
-    const { isLawyer } = useAuth();
+    const { isLawyer, isAdmin } = useAuth();
     
     const navItems = [
         { to: "/app/dashboard", icon: <DashboardIcon />, label: "Dashboard", show: true },
@@ -183,6 +183,7 @@ const NavItems: React.FC<{onLinkClick?: () => void, isCollapsed: boolean}> = ({ 
         { to: "/app/categories", icon: <CategoriesIcon />, label: "Categories", show: true },
         { to: "/app/persons", icon: <PeopleIcon />, label: "Persons", show: true },
         { to: "/app/lawyers", icon: <UsersIcon />, label: "Lawyers", show: true },
+        { to: "/app/reports", icon: <ReportIcon />, label: "Reports", show: isAdmin },
         { to: "/app/my-questions", icon: <ChatBubbleIcon />, label: "My Questions", show: !isLawyer },
         { to: "/app/my-appointments", icon: <CalendarIcon />, label: "My Appointments", show: !isLawyer },
         { to: "/app/questions", icon: <ChatBubbleIcon />, label: "Questions", show: isLawyer },
@@ -217,7 +218,7 @@ const MainLayout: React.FC = () => {
     return (
       <div className="flex h-screen bg-background text-primary overflow-hidden">
         {/* Static Sidebar for Desktop */}
-        <aside className={`flex-col flex-shrink-0 hidden lg:flex border-r border-border bg-surface py-6 transition-all duration-300 ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`flex-col flex-shrink-0 hidden lg:flex border-r border-border bg-surface py-6 transition-all duration-300 print:hidden ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
           <div className="mb-8">
             <Link to="/app/dashboard">
                 <Logo isCollapsed={isSidebarCollapsed} />
@@ -234,7 +235,7 @@ const MainLayout: React.FC = () => {
   
         {/* Mobile Sidebar */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden fixed inset-0 z-50">
+          <div className="lg:hidden fixed inset-0 z-50 print:hidden">
             <div className="fixed inset-0 bg-black/40" onClick={() => setIsMobileMenuOpen(false)}></div>
             <aside className="w-64 flex flex-col flex-shrink-0 fixed top-0 left-0 h-full border-r border-border bg-surface py-6 z-10">
               <Link to="/app/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="mb-8">
@@ -247,7 +248,7 @@ const MainLayout: React.FC = () => {
   
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="relative z-40 h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-surface/80 backdrop-blur-md">
+          <header className="relative z-40 h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-surface/80 backdrop-blur-md print:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="lg:hidden p-2 rounded-md text-secondary hover:bg-background"
@@ -262,7 +263,7 @@ const MainLayout: React.FC = () => {
           </header>
   
           <main className="flex-1 overflow-y-auto">
-            <div className="p-4 sm:p-6 lg:p-8">
+            <div className="p-4 sm:p-6 lg:p-8 print:p-0">
               <Outlet />
             </div>
           </main>

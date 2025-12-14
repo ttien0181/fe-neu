@@ -19,6 +19,7 @@ import QuestionsPage from './pages/QuestionsPage';
 import MyQuestionsPage from './pages/MyQuestionsPage';
 import AppointmentsPage from './pages/AppointmentsPage';
 import MyAppointmentsPage from './pages/MyAppointmentsPage';
+import ReportsPage from './pages/ReportsPage';
 
 const Logo = ({ className = 'h-6 w-6', color = '#4f46e5' }) => (
     <svg className={className} viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
@@ -131,6 +132,11 @@ function App() {
             <Route path="appointments" element={<AppointmentsPage />} />
             <Route path="appointments/:appointmentId" element={<AppointmentsPage />} />
             <Route path="my-appointments" element={<MyAppointmentsPage />} />
+            <Route path="reports" element={
+                <ProtectedRoute adminOnly>
+                    <ReportsPage />
+                </ProtectedRoute>
+            } />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

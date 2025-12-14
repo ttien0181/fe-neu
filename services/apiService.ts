@@ -16,9 +16,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   // const response = await fetch(`${BASE_URL}${endpoint}`, { ...options, headers });
-  console.log("DEBUG upload endpoint:", endpoint);
-  console.log("DEBUG upload headers:", headers);
-  console.log("DEBUG upload body type:", options.body instanceof FormData ? 'FormData' : typeof options.body);
+  // console.log("DEBUG upload endpoint:", endpoint);
+  // console.log("DEBUG upload headers:", headers);
+  // console.log("DEBUG upload body type:", options.body instanceof FormData ? 'FormData' : typeof options.body);
 
 
   const response = await fetch(`${BASE_URL}${endpoint}`, {
@@ -130,3 +130,6 @@ export const deleteCasePerson = (caseId: number, personId: number): Promise<null
 export const createAppointment = (data: AppointmentRequest): Promise<AppointmentResponse> => fetchApi<AppointmentResponse>('/appointments', { method: 'POST', body: JSON.stringify(data) });
 export const getAllAppointments = (): Promise<AppointmentResponse[]> => fetchApi<AppointmentResponse[]>('/appointments');
 export const updateAppointmentStatus = (id: number, status: string): Promise<AppointmentResponse> => fetchApi<AppointmentResponse>(`/appointments/${id}/status?status=${encodeURIComponent(status)}`, { method: 'PUT' });
+
+// Users
+export const getUsers = (): Promise<UserResponse[]> => fetchApi<UserResponse[]>('/users');
