@@ -2,12 +2,12 @@ import React, { useState, useEffect, useMemo } from 'react';
 import * as api from '../services/apiService';
 import { 
     CaseResponse, CategoryResponse, AppointmentResponse, QuestionResponse, 
-    PersonResponse, AuditLogResponse, UserResponse, CaseFileResponse 
+    PersonResponse, AuditLogResponse, CaseFileResponse 
 } from '../types';
 import { Card, Button, Spinner, Input, Select, Label, DownloadIcon } from '../components/ui';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from 'recharts';
 
-type ReportType = 'DASHBOARD' | 'CASES' | 'FILES' | 'APPOINTMENTS' | 'QUESTIONS' | 'USERS' | 'LOGS';
+type ReportType = 'DASHBOARD' | 'CASES' | 'FILES' | 'APPOINTMENTS' | 'QUESTIONS' | 'PERSONS' | 'LOGS';
 
 const ReportsPage: React.FC = () => {
     const [activeTab, setActiveTab] = useState<ReportType>('DASHBOARD');
@@ -20,7 +20,7 @@ const ReportsPage: React.FC = () => {
     const [files, setFiles] = useState<CaseFileResponse[]>([]);
     const [appointments, setAppointments] = useState<AppointmentResponse[]>([]);
     const [questions, setQuestions] = useState<QuestionResponse[]>([]);
-    const [users, setUsers] = useState<UserResponse[]>([]);
+    // Removed users state as we are switching to Persons report
     const [auditLogs, setAuditLogs] = useState<AuditLogResponse[]>([]);
     const [persons, setPersons] = useState<PersonResponse[]>([]);
 
@@ -39,7 +39,6 @@ const ReportsPage: React.FC = () => {
                     filesRes, 
                     apptsRes, 
                     questsRes, 
-                    usersRes, 
                     logsRes,
                     personsRes
                 ] = await Promise.all([
@@ -48,7 +47,6 @@ const ReportsPage: React.FC = () => {
                     api.getCaseFiles(),
                     api.getAllAppointments(),
                     api.getAllQuestions(),
-                    api.getUsers(),
                     api.getAuditLogs(),
                     api.getPersons()
                 ]);
@@ -58,7 +56,6 @@ const ReportsPage: React.FC = () => {
                 setFiles(filesRes);
                 setAppointments(apptsRes);
                 setQuestions(questsRes);
-                setUsers(usersRes);
                 setAuditLogs(logsRes);
                 setPersons(personsRes);
                 
@@ -79,7 +76,11 @@ const ReportsPage: React.FC = () => {
     ) => {
         if (!startDate && !endDate) return items;
         return items.filter(item => {
-            const itemDate = new Date(item[dateField] as string);
+            const dateValue = item[dateField] as string;
+            if (!dateValue) return false; // Skip if date is missing
+            const itemDate = new Date(dateValue);
+            if (isNaN(itemDate.getTime())) return false; // Skip if invalid date
+
             const start = startDate ? new Date(startDate) : new Date(0);
             const end = endDate ? new Date(endDate) : new Date(9999, 11, 31);
             // End date should include the whole day
@@ -89,17 +90,15 @@ const ReportsPage: React.FC = () => {
     };
 
     const filteredCases = useMemo(() => filterByDate(cases, 'createdAt'), [cases, startDate, endDate]);
-    // CaseFiles don't typically have createdAt in the response based on type definition, assuming logic or backend change. 
-    // Using filteredCases to filter files by case association for now as a proxy if createdAt isn't on file.
-    // Actually AuditLogs have timestamps. Files have `uploadedBy` but types.ts doesn't show createdAt. 
-    // We will filter files based on the creation date of their parent case for this demo, or just list all if no date.
+    // Filter files based on the filtered cases (since files usually belong to a case created in that range)
     const filteredFiles = useMemo(() => files.filter(f => filteredCases.find(c => c.id === f.caseId)), [files, filteredCases]);
     
     const filteredAppointments = useMemo(() => filterByDate(appointments, 'appointmentTime'), [appointments, startDate, endDate]);
     const filteredQuestions = useMemo(() => filterByDate(questions, 'createdAt'), [questions, startDate, endDate]);
-    // User creation date not in type definition? Assuming 'createdAt' might be missing on type but usually exists. 
-    // Let's assume all users for now if date missing.
-    const filteredUsers = users; 
+    
+    // Persons do not have a createdAt field in the provided DTO, so we do not filter them by date.
+    const filteredPersons = persons; 
+    
     const filteredLogs = useMemo(() => filterByDate(auditLogs, 'createdAt'), [auditLogs, startDate, endDate]);
 
     // Dashboard Calculations
@@ -119,7 +118,7 @@ const ReportsPage: React.FC = () => {
         const questStats = {
             total: filteredQuestions.length,
             pending: filteredQuestions.filter(q => !q.answer).length,
-            answered: filteredQuestions.filter(q => q.answer).length,
+            answered: filteredQuestions.filter(q => !!q.answer).length,
         };
         return { caseStats, apptStats, questStats };
     };
@@ -129,6 +128,19 @@ const ReportsPage: React.FC = () => {
 
     const handlePrint = () => {
         window.print();
+    };
+
+    // Helper for safe date formatting
+    const formatDate = (dateString?: string) => {
+        if (!dateString) return '-';
+        const d = new Date(dateString);
+        return isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
+    };
+
+    const formatDateTime = (dateString?: string) => {
+        if (!dateString) return '-';
+        const d = new Date(dateString.replace(' ', 'T')); // Handle potential space in SQL timestamps
+        return isNaN(d.getTime()) ? '-' : d.toLocaleString();
     };
 
     // --- Report Header for Print ---
@@ -194,7 +206,7 @@ const ReportsPage: React.FC = () => {
                             <option value="FILES">02_Case_Files_Report</option>
                             <option value="APPOINTMENTS">03_Appointments_Report</option>
                             <option value="QUESTIONS">04_Questions_Report</option>
-                            <option value="USERS">05_Users_Roles_Report</option>
+                            <option value="PERSONS">05_Persons_Report</option>
                             <option value="LOGS">06_Audit_Logs_Report</option>
                         </Select>
                     </div>
@@ -307,12 +319,12 @@ const ReportsPage: React.FC = () => {
                                 <tr key={c.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
                                     <td className="px-3 py-2 border border-gray-300">{c.id}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-medium">{c.caseName}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{categories.find(cat => cat.id === c.categoryId)?.name}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{c.status}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{c.courtName} - {c.location}</td>
-                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString()}</td>
-                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{new Date(c.updatedAt).toLocaleDateString()}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-medium">{c.caseName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{categories.find(cat => cat.id === c.categoryId)?.name || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{c.status || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{c.courtName || '-'} / {c.location || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{formatDate(c.createdAt)}</td>
+                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{formatDate(c.updatedAt)}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -332,9 +344,9 @@ const ReportsPage: React.FC = () => {
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
                                     <td className="px-3 py-2 border border-gray-300">{f.id}</td>
                                     <td className="px-3 py-2 border border-gray-300">{f.caseId}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-medium">{f.fileName}</td>
-                                    <td className="px-3 py-2 border border-gray-300 uppercase">{f.fileType}</td>
-                                    <td className="px-3 py-2 border border-gray-300 truncate max-w-xs">{f.filePath}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-medium">{f.fileName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300 uppercase">{f.fileType || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300 truncate max-w-xs">{f.filePath || '-'}</td>
                                     <td className="px-3 py-2 border border-gray-300">{f.uploadedBy || 'System'}</td>
                                 </tr>
                             ))}
@@ -354,11 +366,11 @@ const ReportsPage: React.FC = () => {
                                 <tr key={a.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
                                     <td className="px-3 py-2 border border-gray-300">{a.id}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-medium">{a.userName}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{a.lawyerName}</td>
-                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{new Date(a.appointmentTime.replace(' ', 'T')).toLocaleString()}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-medium">{a.userName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{a.lawyerName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{formatDateTime(a.appointmentTime)}</td>
                                     <td className="px-3 py-2 border border-gray-300">{a.status}</td>
-                                    <td className="px-3 py-2 border border-gray-300 italic">{a.notes}</td>
+                                    <td className="px-3 py-2 border border-gray-300 italic">{a.notes || '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -377,13 +389,13 @@ const ReportsPage: React.FC = () => {
                                 <tr key={q.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
                                     <td className="px-3 py-2 border border-gray-300">{q.id}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-medium">{q.questionerName}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{q.lawyerName}</td>
-                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{new Date(q.createdAt).toLocaleString()}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-medium">{q.questionerName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{q.lawyerName || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{formatDateTime(q.createdAt)}</td>
                                     <td className="px-3 py-2 border border-gray-300">
                                         {q.answer ? <span className="text-green-600 font-bold">Answered</span> : <span className="text-yellow-600 font-bold">Pending</span>}
                                     </td>
-                                    <td className="px-3 py-2 border border-gray-300 max-w-xs truncate">{q.content}</td>
+                                    <td className="px-3 py-2 border border-gray-300 max-w-xs truncate">{q.content || '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -391,21 +403,20 @@ const ReportsPage: React.FC = () => {
                 </Card>
             </div>
 
-             {/* --- USERS REPORT --- */}
-             <div className={activeTab === 'USERS' ? 'block' : 'hidden print:hidden'}>
-                <PrintHeader title="BÁO CÁO NGƯỜI DÙNG & PHÂN QUYỀN" />
+             {/* --- PERSONS REPORT (Changed from USERS) --- */}
+             <div className={activeTab === 'PERSONS' ? 'block' : 'hidden print:hidden'}>
+                <PrintHeader title="BÁO CÁO DANH SÁCH NHÂN SỰ/ĐỐI TƯỢNG (PERSONS)" />
                 <Card className="overflow-hidden print:shadow-none print:border-0">
                     <table className="min-w-full text-xs md:text-sm border-collapse border border-gray-300">
-                        <TableHeader cols={['STT', 'User_ID', 'Username', 'Email', 'Role', 'Status']} />
+                        <TableHeader cols={['STT', 'Person_ID', 'Name', 'Role', 'Contact Info']} />
                         <tbody>
-                            {filteredUsers.map((u, idx) => (
-                                <tr key={u.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
+                            {filteredPersons.map((p, idx) => (
+                                <tr key={p.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{u.id}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-bold">{u.username}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{u.email}</td>
-                                    <td className="px-3 py-2 border border-gray-300">{u.role}</td>
-                                    <td className="px-3 py-2 border border-gray-300">Active</td>
+                                    <td className="px-3 py-2 border border-gray-300">{p.id}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-bold">{p.name || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{p.role || '-'}</td>
+                                    <td className="px-3 py-2 border border-gray-300">{p.contactInfo || '-'}</td>
                                 </tr>
                             ))}
                         </tbody>
@@ -424,9 +435,9 @@ const ReportsPage: React.FC = () => {
                                 <tr key={l.id} className="border border-gray-300 hover:bg-gray-50 print:break-inside-avoid">
                                     <td className="px-3 py-2 border border-gray-300 text-center">{idx + 1}</td>
                                     <td className="px-3 py-2 border border-gray-300">{l.id}</td>
-                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{new Date(l.createdAt).toLocaleString()}</td>
+                                    <td className="px-3 py-2 border border-gray-300 whitespace-nowrap">{formatDateTime(l.createdAt)}</td>
                                     <td className="px-3 py-2 border border-gray-300">{l.userId}</td>
-                                    <td className="px-3 py-2 border border-gray-300 font-medium">{l.action}</td>
+                                    <td className="px-3 py-2 border border-gray-300 font-medium">{l.action || '-'}</td>
                                     <td className="px-3 py-2 border border-gray-300">{l.caseId || '-'}</td>
                                     <td className="px-3 py-2 border border-gray-300">{l.fileId || '-'}</td>
                                 </tr>
