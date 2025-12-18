@@ -1,5 +1,3 @@
-
-
 import React, { ReactNode } from 'react';
 
 // --- Icons ---
@@ -18,13 +16,11 @@ export const DownloadIcon = () => (
 export const EyeIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
 );
-export const GithubIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.492.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clipRule="evenodd"></path>
-  </svg>
+export const SunIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M12 8a4 4 0 100 8 4 4 0 000-8z" /></svg>
 );
-export const FolderIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
+export const MoonIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
 );
 export const DashboardIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
@@ -35,15 +31,15 @@ export const CasesIcon = () => (
 export const CategoriesIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
 );
-export const UsersIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-    </svg>
-);
 export const PeopleIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M15 21a6 6 0 00-9-5.197m0 0A5.995 5.995 0 0012 12a5.995 5.995 0 00-3-5.197" />
     </svg>
+);
+export const UsersIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.125-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.653.125-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
 );
 export const LogoutIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -79,54 +75,50 @@ export const ReportIcon = () => (
 // --- Button ---
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger';
-  // Fix: Add size prop to ButtonProps to allow for different button sizes.
   size?: 'default' | 'sm' | 'lg';
   children: ReactNode;
 }
 export const Button: React.FC<ButtonProps> = ({ variant = 'primary', size = 'default', children, ...props }) => {
-  // Fix: Move size-specific classes out of baseClasses.
   const baseClasses = 'rounded-lg font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed inline-flex items-center gap-2 justify-center transform';
   const variantClasses = {
     primary: 'bg-accent hover:bg-accent-hover text-white focus:ring-accent shadow-md hover:shadow-lg hover:-translate-y-px',
-    secondary: 'bg-surface hover:bg-background text-primary border border-border focus:ring-accent',
+    secondary: 'bg-surface dark:bg-slate-800 hover:bg-background dark:hover:bg-slate-700 text-primary dark:text-slate-100 border border-border dark:border-slate-700 focus:ring-accent',
     danger: 'bg-red-600 hover:bg-red-700 focus:ring-red-500 text-white shadow-md hover:shadow-lg hover:-translate-y-px',
   };
-  // Fix: Define size classes to be applied based on the size prop.
   const sizeClasses = {
     default: 'px-4 py-2',
     sm: 'px-2 py-1 text-xs',
     lg: 'px-6 py-3 text-lg',
   };
-  // Fix: Combine base, variant, size, and custom classes.
   return <button className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${props.className || ''}`} {...props}>{children}</button>;
 };
 
 // --- Label ---
 interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {}
 export const Label: React.FC<LabelProps> = (props) => {
-    return <label className="block text-sm font-medium text-secondary mb-2" {...props} />;
+    return <label className="block text-sm font-medium text-secondary dark:text-slate-400 mb-2" {...props} />;
 };
 
 // --- Input ---
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 export const Input: React.FC<InputProps> = (props) => {
-  return <input className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
+  return <input className="w-full px-3 py-2 bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg text-primary dark:text-slate-100 placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 // --- Select ---
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {}
 export const Select: React.FC<SelectProps> = (props) => {
-  return <select className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
+  return <select className="w-full px-3 py-2 bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg text-primary dark:text-slate-100 placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 // --- Textarea ---
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {}
 export const Textarea: React.FC<TextareaProps> = (props) => {
-    return <textarea className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-primary placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
+    return <textarea className="w-full px-3 py-2 bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 rounded-lg text-primary dark:text-slate-100 placeholder-secondary focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent transition-colors duration-200" {...props} />;
 };
 
 // --- Card ---
 interface CardProps { children: ReactNode; className?: string; }
 export const Card: React.FC<CardProps> = ({ children, className }) => {
-  return <div className={`bg-surface border border-border shadow-sm rounded-xl ${className}`}>{children}</div>;
+  return <div className={`bg-surface dark:bg-slate-800 border border-border dark:border-slate-700 shadow-sm rounded-xl ${className}`}>{children}</div>;
 };
 
 // --- Modal ---
@@ -144,14 +136,14 @@ export const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }
         onClick={onClose}
       >
         <div
-          className="bg-surface rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] border border-border flex flex-col animate-scale-in"
+          className="bg-surface dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] border border-border dark:border-slate-700 flex flex-col animate-scale-in"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex justify-between items-center p-5 border-b border-border flex-shrink-0">
-            <h3 className="text-xl font-semibold text-primary">{title}</h3>
+          <div className="flex justify-between items-center p-5 border-b border-border dark:border-slate-700 flex-shrink-0">
+            <h3 className="text-xl font-semibold text-primary dark:text-slate-100">{title}</h3>
             <button
               onClick={onClose}
-              className="text-secondary hover:text-primary transition-colors text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-background"
+              className="text-secondary hover:text-primary dark:hover:text-slate-100 transition-colors text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-background dark:hover:bg-slate-700"
             >
               &times;
             </button>

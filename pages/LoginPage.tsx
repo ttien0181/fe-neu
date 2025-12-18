@@ -23,22 +23,22 @@ const LoginPage: React.FC = () => {
     try {
       await login({ email, password });
     } catch (err: any) {
-      setError(err.message || 'Failed to log in. Please check your credentials.');
+      setError(err.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
         setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background pt-20 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-background dark:bg-slate-900 pt-20 px-4 transition-colors duration-300">
       <div className="max-w-md w-full mx-auto text-center">
         <Link to="/" className="inline-flex items-center gap-3 mb-8">
             <Logo className="h-10 w-10" />
-            <span className="text-3xl font-bold text-primary">Binh An Law</span>
+            <span className="text-3xl font-bold text-primary dark:text-slate-100">Luật Bình An</span>
         </Link>
         <Card className="text-left p-8">
-          <h2 className="text-3xl font-bold text-center text-primary mb-2">Welcome Back</h2>
-          <p className="text-center text-secondary mb-8">Sign in to access your dashboard.</p>
+          <h2 className="text-3xl font-bold text-center text-primary dark:text-slate-100 mb-2">Chào mừng trở lại</h2>
+          <p className="text-center text-secondary dark:text-slate-400 mb-8">Đăng nhập để truy cập vào hệ thống của bạn.</p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="email">Email</Label>
@@ -48,14 +48,14 @@ const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Enter your email"
+                placeholder="Nhập email của bạn"
               />
             </div>
             <div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="password-input">Password</Label>
-                <Link to="/forgot-password" className="text-sm font-medium text-accent hover:text-accent-hover">
-                  Forgot Password?
+                <Label htmlFor="password-input">Mật khẩu</Label>
+                <Link to="/forgot-password" university-accent-hover className="text-sm font-medium text-accent hover:text-accent-hover">
+                  Quên mật khẩu?
                 </Link>
               </div>
               <Input
@@ -64,19 +64,19 @@ const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu"
               />
             </div>
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <div>
-              <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </div>
-            <p className="text-center text-sm text-secondary">
-                Don't have an account?{' '}
+            <p className="text-center text-sm text-secondary dark:text-slate-400">
+                Chưa có tài khoản?{' '}
                 <Link to="/register" className="font-medium text-accent hover:text-accent-hover">
-                    Sign Up
+                    Đăng ký ngay
                 </Link>
             </p>
           </form>

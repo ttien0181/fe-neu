@@ -9,7 +9,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 const StatCard: React.FC<{ title: string; value: string | number; }> = ({ title, value }) => (
     <Card className="text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 p-6">
         <p className="text-5xl font-bold text-accent">{value}</p>
-        <h3 className="text-lg font-semibold text-secondary mt-2">{title}</h3>
+        <h3 className="text-lg font-semibold text-secondary dark:text-slate-400 mt-2">{title}</h3>
     </Card>
 );
 
@@ -32,26 +32,22 @@ const DashboardPage: React.FC = () => {
                     getPersons()
                 ]);
 
-                // Set main stats
                 setStats({
                     cases: cases.length,
                     categories: categories.length,
                     persons: persons.length,
                 });
 
-                // Get recent cases
                 const sortedCases = [...cases].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
                 setRecentCases(sortedCases.slice(0, 5));
 
-                // Get cases by category
                 const categoryCounts = categories.map(category => {
                     const count = cases.filter(c => c.categoryId === category.id).length;
                     return { id: category.id, name: category.name, count };
                 });
                 setCasesByCategory(categoryCounts);
                 
-                // Get cases by month for the last 12 months
-                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const monthNames = ["Th1", "Th2", "Th3", "Th4", "Th5", "Th6", "Th7", "Th8", "Th9", "Th10", "Th11", "Th12"];
                 const casesByMonthData = Array(12).fill(0).map((_, i) => {
                     const d = new Date();
                     d.setMonth(d.getMonth() - i);
@@ -74,22 +70,27 @@ const DashboardPage: React.FC = () => {
                 });
                 setCasesByMonth(casesByMonthData.map(({name, count}) => ({name, count})));
 
-                // Get persons by role
                 const roleCounts = persons.reduce((acc: { [key: string]: number }, person: PersonResponse) => {
-                    const role = person.role || 'Unknown';
+                    const role = person.role || 'Chưa rõ';
                     acc[role] = (acc[role] || 0) + 1;
                     return acc;
                 }, {});
 
-                const personsByRoleData = Object.keys(roleCounts).map(role => ({
-                    name: role.charAt(0).toUpperCase() + role.slice(1),
-                    value: roleCounts[role]
-                }));
+                const personsByRoleData = Object.keys(roleCounts).map(role => {
+                    let vietnameseRole = role;
+                    if (role === 'lawyer') vietnameseRole = 'Luật sư';
+                    if (role === 'plaintiff') vietnameseRole = 'Nguyên đơn';
+                    if (role === 'defendant') vietnameseRole = 'Bị đơn';
+                    return {
+                        name: vietnameseRole,
+                        value: roleCounts[role]
+                    }
+                });
                 setPersonsByRole(personsByRoleData);
 
 
             } catch (err: any) {
-                setError('Failed to load dashboard data.');
+                setError('Không thể tải dữ liệu bảng điều khiển.');
             } finally {
                 setLoading(false);
             }
@@ -103,7 +104,7 @@ const DashboardPage: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-primary mb-8">Dashboard</h1>
+            <h1 className="text-3xl font-bold text-primary dark:text-slate-100 mb-8">Tổng quan hệ thống</h1>
             {loading ? (
                  <div className="flex justify-center items-center h-64">
                     <Spinner />
@@ -113,13 +114,13 @@ const DashboardPage: React.FC = () => {
             ) : (
                 <>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <StatCard title="Total Cases" value={stats.cases} />
-                        <StatCard title="Total Categories" value={stats.categories} />
-                        <StatCard title="Total Persons" value={stats.persons} />
+                        <StatCard title="Tổng số vụ việc" value={stats.cases} />
+                        <StatCard title="Tổng số danh mục" value={stats.categories} />
+                        <StatCard title="Tổng số nhân sự" value={stats.persons} />
                     </div>
 
                     <Card className="p-6 mb-8">
-                        <h2 className="text-2xl font-semibold text-primary mb-4">Cases per Month (Last 12 Months)</h2>
+                        <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Hồ sơ mới theo tháng (12 tháng qua)</h2>
                         <div className="w-full h-80">
                            <ResponsiveContainer>
                                <BarChart data={casesByMonth} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
@@ -127,7 +128,7 @@ const DashboardPage: React.FC = () => {
                                    <XAxis dataKey="name" tick={{ fill: '#64748b', fontSize: 12 }} />
                                    <YAxis allowDecimals={false} tick={{ fill: '#64748b' }} />
                                    <Tooltip cursor={{ fill: '#f1f5f9' }} contentStyle={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '0.5rem' }} />
-                                   <Bar dataKey="count" fill="#4f46e5" name="New Cases" />
+                                   <Bar dataKey="count" fill="#4f46e5" name="Số vụ việc" />
                                </BarChart>
                            </ResponsiveContainer>
                        </div>
@@ -135,12 +136,11 @@ const DashboardPage: React.FC = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <Card className="p-6">
-                            <h2 className="text-2xl font-semibold text-primary mb-4">Persons by Role</h2>
+                            <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Cơ cấu nhân sự theo vai trò</h2>
                             {personsByRole.length > 0 ? (
                                 <div className="w-full h-80">
                                     <ResponsiveContainer>
                                         <PieChart>
-                                            {/* Fix: Explicitly type the label props to resolve "The left-hand side of an arithmetic operation must be of type 'any'..." error. */}
                                             <Pie data={personsByRole} cx="50%" cy="50%" labelLine={false} outerRadius={100} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }: any) => `${name} ${(percent * 100).toFixed(0)}%`}>
                                                 {personsByRole.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
@@ -151,26 +151,26 @@ const DashboardPage: React.FC = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
-                            ) : <p className="text-secondary">No person data to display.</p>}
+                            ) : <p className="text-secondary dark:text-slate-400">Không có dữ liệu nhân sự.</p>}
                         </Card>
                          <Card className="p-6">
-                            <h2 className="text-2xl font-semibold text-primary mb-4">Recent Activity</h2>
+                            <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Hoạt động gần đây</h2>
                             {recentCases.length > 0 ? (
                                 <div className="space-y-3">
                                     {recentCases.map(c => (
-                                        <div key={c.id} className="flex justify-between items-center p-3 bg-background rounded-lg">
+                                        <div key={c.id} className="flex justify-between items-center p-3 bg-background dark:bg-slate-700/50 rounded-lg">
                                             <div>
-                                                <p className="font-semibold text-primary">{c.caseName}</p>
-                                                <p className="text-sm text-secondary">Last updated: {new Date(c.updatedAt).toLocaleDateString()}</p>
+                                                <p className="font-semibold text-primary dark:text-slate-100">{c.caseName}</p>
+                                                <p className="text-sm text-secondary dark:text-slate-400">Cập nhật: {new Date(c.updatedAt).toLocaleDateString('vi-VN')}</p>
                                             </div>
-                                            <Link to={`/app/cases/${c.id}`} className="text-accent font-semibold hover:underline text-sm">View</Link>
+                                            <Link to={`/app/cases/${c.id}`} className="text-accent font-semibold hover:underline text-sm">Xem</Link>
                                         </div>
                                     ))}
                                 </div>
-                            ) : <p className="text-secondary">No recent case activity.</p>}
+                            ) : <p className="text-secondary dark:text-slate-400">Không có hoạt động gần đây.</p>}
                         </Card>
                          <Card className="p-6 lg:col-span-2">
-                            <h2 className="text-2xl font-semibold text-primary mb-4">Cases by Category</h2>
+                            <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Thống kê theo danh mục</h2>
                             {casesByCategory.length > 0 ? (
                                <div className="w-full h-80">
                                    <ResponsiveContainer>
@@ -189,11 +189,11 @@ const DashboardPage: React.FC = () => {
                                                    borderRadius: '0.5rem',
                                                }}
                                            />
-                                           <Bar dataKey="count" fill="#14b8a6" name="Cases" />
+                                           <Bar dataKey="count" fill="#14b8a6" name="Vụ việc" />
                                        </BarChart>
                                    </ResponsiveContainer>
                                </div>
-                            ) : <p className="text-secondary">No category data to display.</p>}
+                            ) : <p className="text-secondary dark:text-slate-400">Không có dữ liệu danh mục.</p>}
                         </Card>
                     </div>
                 </>

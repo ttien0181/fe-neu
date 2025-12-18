@@ -1,9 +1,7 @@
-
-
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { DashboardIcon, CasesIcon, CategoriesIcon, PeopleIcon, LogoutIcon, HamburgerIcon, ChevronDownIcon, UsersIcon, BellIcon, ChatBubbleIcon, CalendarIcon, ChevronDoubleLeftIcon, ReportIcon } from '../components/ui';
+import { DashboardIcon, CasesIcon, CategoriesIcon, PeopleIcon, LogoutIcon, HamburgerIcon, ChevronDownIcon, UsersIcon, BellIcon, ChatBubbleIcon, CalendarIcon, ChevronDoubleLeftIcon, ReportIcon, SunIcon, MoonIcon } from '../components/ui';
 import * as api from '../services/apiService';
 import { QuestionResponse, AppointmentResponse } from '../types';
 
@@ -21,7 +19,7 @@ const Logo = ({ isCollapsed }: { isCollapsed: boolean }) => (
         <svg height="32" width="32" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <path fill="#4f46e5" d="M24.2,2.3c-0.2,0-0.4,0-0.5,0c-0.3,0-0.5,0.1-0.8,0.2c-11.4,2.6-18.1,13.7-15.5,25.1c2,9,9.6,15.7,18.5,16.2c0.2,0,0.3,0,0.5,0c11.8-0.6,21.3-10.4,21.3-22.3C47.6,11.8,37.2,2.4,24.2,2.3z M24,43.3C14.7,43.3,7,35.5,7,26.3c0-8.2,5.9-15.1,13.9-16.5l15.8,15.8C35.6,33.5,29.9,34.2,24,43.3z M30.9,23.3L15.1,7.5c1.4-0.6,3-1,4.6-1.1c9.4-0.5,17.2,6.8,17.2,16.2C36.9,22.8,32,23.1,30.9,23.3z"/>
         </svg>
-        {!isCollapsed && <span className="text-xl font-bold text-primary whitespace-nowrap">Binh An Law</span>}
+        {!isCollapsed && <span className="text-xl font-bold text-primary dark:text-slate-100 whitespace-nowrap">Luật Bình An</span>}
     </div>
 );
 
@@ -43,7 +41,7 @@ const NotificationBell = () => {
                     lawyerQuestions.forEach(q => newNotifications.push({
                         id: `q-${q.id}`,
                         type: 'question',
-                        text: `New question from ${q.questionerName}`,
+                        text: `Câu hỏi mới từ ${q.questionerName}`,
                         content: q.content,
                         link: `/app/questions/${q.id}`,
                         date: new Date(q.createdAt)
@@ -57,7 +55,7 @@ const NotificationBell = () => {
                     userQuestions.filter(q => q.answer !== null).forEach(q => newNotifications.push({
                         id: `q-${q.id}`,
                         type: 'question',
-                        text: `Your question to ${q.lawyerName} has been answered.`,
+                        text: `Câu hỏi của bạn tới ${q.lawyerName} đã được trả lời.`,
                         content: q.content,
                         link: '/app/my-questions',
                         date: new Date(q.updatedAt)
@@ -66,10 +64,10 @@ const NotificationBell = () => {
                     userAppointments.filter(a => a.status !== 'PENDING').forEach(a => newNotifications.push({
                         id: `a-${a.id}`,
                         type: 'appointment',
-                        text: `Your appointment with ${a.lawyerName} was ${a.status.toLowerCase()}.`,
-                        content: `Time: ${new Date(a.appointmentTime.replace(' ', 'T')).toLocaleString()}`,
+                        text: `Lịch hẹn với ${a.lawyerName} đã được ${a.status === 'ACCEPTED' ? 'chấp nhận' : 'từ chối'}.`,
+                        content: `Thời gian: ${new Date(a.appointmentTime.replace(' ', 'T')).toLocaleString('vi-VN')}`,
                         link: '/app/my-appointments',
-                        date: new Date() // Appointment response doesn't have an updatedAt, so we use current date for sorting.
+                        date: new Date()
                     }));
                 }
                 setNotifications(newNotifications.sort((a,b) => b.date.getTime() - a.date.getTime()));
@@ -79,7 +77,7 @@ const NotificationBell = () => {
         };
 
         fetchNotifications();
-        const interval = setInterval(fetchNotifications, 60000); // Poll every minute
+        const interval = setInterval(fetchNotifications, 60000); 
         return () => clearInterval(interval);
 
     }, [user, isLawyer, lawyerPersonId]);
@@ -96,15 +94,15 @@ const NotificationBell = () => {
 
     return (
         <div className="relative" ref={bellRef}>
-            <button onClick={() => setIsOpen(!isOpen)} className="relative p-2 rounded-full text-secondary hover:bg-background hover:text-primary">
+            <button onClick={() => setIsOpen(!isOpen)} className="relative p-2 rounded-full text-secondary dark:text-slate-400 hover:bg-background dark:hover:bg-slate-700 hover:text-primary dark:hover:text-slate-100">
                 <BellIcon />
                 {notifications.length > 0 && (
-                    <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-surface"></span>
+                    <span className="absolute top-1 right-1 block h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-surface dark:border-slate-800"></span>
                 )}
             </button>
             {isOpen && (
-                <div className="absolute right-0 mt-2 w-80 bg-surface rounded-xl shadow-lg border border-border z-50">
-                    <div className="p-3 font-semibold border-b border-border text-primary">Notifications</div>
+                <div className="absolute right-0 mt-2 w-80 bg-surface dark:bg-slate-800 rounded-xl shadow-lg border border-border dark:border-slate-700 z-50">
+                    <div className="p-3 font-semibold border-b border-border dark:border-slate-700 text-primary dark:text-slate-100">Thông báo</div>
                     <div className="py-1 max-h-96 overflow-y-auto">
                         {notifications.length > 0 ? (
                             notifications.map(n => (
@@ -112,14 +110,14 @@ const NotificationBell = () => {
                                     key={n.id}
                                     to={n.link}
                                     onClick={() => setIsOpen(false)}
-                                    className="block px-4 py-3 text-sm text-primary hover:bg-background"
+                                    className="block px-4 py-3 text-sm text-primary dark:text-slate-100 hover:bg-background dark:hover:bg-slate-700"
                                 >
                                     <p className="font-medium">{n.text}</p>
-                                    <p className="text-xs text-secondary truncate mt-1">{n.content}</p>
+                                    <p className="text-xs text-secondary dark:text-slate-400 truncate mt-1">{n.content}</p>
                                 </Link>
                             ))
                         ) : (
-                            <p className="px-4 py-3 text-sm text-secondary">No new notifications.</p>
+                            <p className="px-4 py-3 text-sm text-secondary dark:text-slate-400">Không có thông báo mới.</p>
                         )}
                     </div>
                 </div>
@@ -147,25 +145,25 @@ const UserMenu: React.FC = () => {
     <div className="relative" ref={profileMenuRef}>
       <button
         onClick={() => setIsProfileOpen(!isProfileOpen)}
-        className="flex items-center gap-3 text-left p-2 rounded-lg hover:bg-background"
+        className="flex items-center gap-3 text-left p-2 rounded-lg hover:bg-background dark:hover:bg-slate-700"
       >
         <div className="w-9 h-9 rounded-full bg-accent text-white flex items-center justify-center font-bold">
           {user?.username.charAt(0).toUpperCase()}
         </div>
         <div className="hidden md:block">
-          <p className="font-semibold text-sm text-primary">{user?.username}</p>
-          <p className="text-xs text-secondary">{isAdmin ? 'Admin' : (isLawyer ? 'Lawyer' : 'User')}</p>
+          <p className="font-semibold text-sm text-primary dark:text-slate-100">{user?.username}</p>
+          <p className="text-xs text-secondary dark:text-slate-400">{isAdmin ? 'Quản trị viên' : (isLawyer ? 'Luật sư' : 'Khách hàng')}</p>
         </div>
         <ChevronDownIcon />
       </button>
       {isProfileOpen && (
-        <div className="absolute right-0 mt-2 w-56 bg-surface rounded-xl shadow-lg border border-border z-50 py-2">
+        <div className="absolute right-0 mt-2 w-56 bg-surface dark:bg-slate-800 rounded-xl shadow-lg border border-border dark:border-slate-700 z-50 py-2">
           <button
             onClick={() => { logout(); setIsProfileOpen(false); }}
-            className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-background"
+            className="w-full text-left flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-background dark:hover:bg-slate-700"
           >
             <LogoutIcon />
-            <span>Logout</span>
+            <span>Đăng xuất</span>
           </button>
         </div>
       )}
@@ -178,20 +176,20 @@ const NavItems: React.FC<{onLinkClick?: () => void, isCollapsed: boolean}> = ({ 
     const { isLawyer, isAdmin } = useAuth();
     
     const navItems = [
-        { to: "/app/dashboard", icon: <DashboardIcon />, label: "Dashboard", show: true },
-        { to: "/app/cases", icon: <CasesIcon />, label: "Cases", show: true },
-        { to: "/app/categories", icon: <CategoriesIcon />, label: "Categories", show: true },
-        { to: "/app/persons", icon: <PeopleIcon />, label: "Persons", show: true },
-        { to: "/app/lawyers", icon: <UsersIcon />, label: "Lawyers", show: true },
-        { to: "/app/reports", icon: <ReportIcon />, label: "Reports", show: isAdmin },
-        { to: "/app/my-questions", icon: <ChatBubbleIcon />, label: "My Questions", show: !isLawyer },
-        { to: "/app/my-appointments", icon: <CalendarIcon />, label: "My Appointments", show: !isLawyer },
-        { to: "/app/questions", icon: <ChatBubbleIcon />, label: "Questions", show: isLawyer },
-        { to: "/app/appointments", icon: <CalendarIcon />, label: "Appointments", show: isLawyer },
+        { to: "/app/dashboard", icon: <DashboardIcon />, label: "Tổng quan", show: true },
+        { to: "/app/cases", icon: <CasesIcon />, label: "Vụ việc", show: true },
+        { to: "/app/categories", icon: <CategoriesIcon />, label: "Danh mục", show: true },
+        { to: "/app/persons", icon: <PeopleIcon />, label: "Nhân sự", show: true },
+        { to: "/app/lawyers", icon: <UsersIcon />, label: "Luật sư", show: true },
+        { to: "/app/reports", icon: <ReportIcon />, label: "Báo cáo", show: isAdmin },
+        { to: "/app/my-questions", icon: <ChatBubbleIcon />, label: "Câu hỏi của tôi", show: !isLawyer },
+        { to: "/app/my-appointments", icon: <CalendarIcon />, label: "Lịch hẹn của tôi", show: !isLawyer },
+        { to: "/app/questions", icon: <ChatBubbleIcon />, label: "Câu hỏi khách hàng", show: isLawyer },
+        { to: "/app/appointments", icon: <CalendarIcon />, label: "Quản lý lịch hẹn", show: isLawyer },
     ];
     
-    const navLinkClasses = `flex items-center gap-3 px-4 py-2.5 text-secondary rounded-lg hover:bg-background hover:text-primary transition-colors font-medium ${isCollapsed ? 'justify-center' : ''}`;
-    const activeNavLinkClasses = "bg-accent/10 text-accent font-semibold";
+    const navLinkClasses = `flex items-center gap-3 px-4 py-2.5 text-secondary dark:text-slate-400 rounded-lg hover:bg-background dark:hover:bg-slate-700 hover:text-primary dark:hover:text-slate-100 transition-colors font-medium ${isCollapsed ? 'justify-center' : ''}`;
+    const activeNavLinkClasses = "bg-accent/10 text-accent dark:bg-accent/20 dark:text-accent font-semibold";
 
     return (
          <nav className="flex-1 space-y-2 px-2">
@@ -214,11 +212,22 @@ const NavItems: React.FC<{onLinkClick?: () => void, isCollapsed: boolean}> = ({ 
 const MainLayout: React.FC = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+    const [isDarkMode, setIsDarkMode] = useState(() => localStorage.getItem('theme') === 'dark');
+
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
+    }, [isDarkMode]);
   
     return (
-      <div className="flex h-screen bg-background text-primary overflow-hidden">
+      <div className="flex h-screen bg-background dark:bg-slate-900 text-primary dark:text-slate-100 overflow-hidden transition-colors duration-300">
         {/* Static Sidebar for Desktop */}
-        <aside className={`flex-col flex-shrink-0 hidden lg:flex border-r border-border bg-surface py-6 transition-all duration-300 print:hidden ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`flex-col flex-shrink-0 hidden lg:flex border-r border-border dark:border-slate-800 bg-surface dark:bg-slate-800 py-6 transition-all duration-300 print:hidden ${isSidebarCollapsed ? 'w-20' : 'w-64'}`}>
           <div className="mb-8">
             <Link to="/app/dashboard">
                 <Logo isCollapsed={isSidebarCollapsed} />
@@ -226,9 +235,9 @@ const MainLayout: React.FC = () => {
           </div>
           <NavItems isCollapsed={isSidebarCollapsed} />
           <div className="mt-auto px-2">
-            <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className={`flex items-center gap-3 px-4 py-2.5 text-secondary rounded-lg hover:bg-background hover:text-primary transition-colors w-full ${isSidebarCollapsed ? 'justify-center' : ''}`}>
+            <button onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} className={`flex items-center gap-3 px-4 py-2.5 text-secondary dark:text-slate-400 rounded-lg hover:bg-background dark:hover:bg-slate-700 hover:text-primary dark:hover:text-slate-100 transition-colors w-full ${isSidebarCollapsed ? 'justify-center' : ''}`}>
                <div className={`transform transition-transform duration-300 ${isSidebarCollapsed ? 'rotate-180' : ''}`}><ChevronDoubleLeftIcon/></div>
-               {!isSidebarCollapsed && <span>Collapse</span>}
+               {!isSidebarCollapsed && <span>Thu gọn</span>}
             </button>
           </div>
         </aside>
@@ -237,7 +246,7 @@ const MainLayout: React.FC = () => {
         {isMobileMenuOpen && (
           <div className="lg:hidden fixed inset-0 z-50 print:hidden">
             <div className="fixed inset-0 bg-black/40" onClick={() => setIsMobileMenuOpen(false)}></div>
-            <aside className="w-64 flex flex-col flex-shrink-0 fixed top-0 left-0 h-full border-r border-border bg-surface py-6 z-10">
+            <aside className="w-64 flex flex-col flex-shrink-0 fixed top-0 left-0 h-full border-r border-border dark:border-slate-800 bg-surface dark:bg-slate-800 py-6 z-10">
               <Link to="/app/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="mb-8">
                 <Logo isCollapsed={false} />
               </Link>
@@ -248,15 +257,22 @@ const MainLayout: React.FC = () => {
   
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="relative z-40 h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border bg-surface/80 backdrop-blur-md print:hidden">
+          <header className="relative z-40 h-20 flex-shrink-0 flex items-center justify-between px-4 sm:px-6 lg:px-8 border-b border-border dark:border-slate-800 bg-surface/80 dark:bg-slate-800/80 backdrop-blur-md print:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 rounded-md text-secondary hover:bg-background"
+              className="lg:hidden p-2 rounded-md text-secondary dark:text-slate-400 hover:bg-background dark:hover:bg-slate-700"
             >
               <HamburgerIcon />
             </button>
-            <div className="flex-1"></div> {/* Spacer */}
+            <div className="flex-1"></div>
             <div className="flex items-center gap-4">
+              <button 
+                onClick={() => setIsDarkMode(!isDarkMode)} 
+                className="p-2 rounded-full text-secondary dark:text-slate-400 hover:bg-background dark:hover:bg-slate-700 hover:text-primary dark:hover:text-slate-100 transition-all"
+                title={isDarkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+              >
+                {isDarkMode ? <SunIcon /> : <MoonIcon />}
+              </button>
               <NotificationBell />
               <UserMenu />
             </div>

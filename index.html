@@ -1,30 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Binh An Law - Case Management</title>
+    <title>Luật Bình An - Quản lý hồ sơ</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
             fontFamily: {
               sans: ['Poppins', 'sans-serif'],
             },
             colors: {
-              'background': '#f8fafc', // Light gray background
-              'surface': '#ffffff',    // White for cards
-              'primary': '#0f172a',    // Dark navy for text
-              'secondary': '#64748b',  // Muted gray for secondary text
-              'accent': '#4f46e5',     // Indigo for buttons, links
-              'accent-hover': '#4338ca', // Darker indigo for hover
-              'secondary-accent-hover': '#c5c7c9', // Darker indigo for hover
-              'border': '#e2e8f0',     // Light border color
+              'background': '#f8fafc', 
+              'surface': '#ffffff',    
+              'primary': '#0f172a',    
+              'secondary': '#64748b',  
+              'accent': '#4f46e5',     
+              'accent-hover': '#4338ca',
+              'border': '#e2e8f0',     
             },
           }
         }
@@ -42,7 +42,7 @@
 }
 </script>
 </head>
-  <body class="bg-background text-primary font-sans">
+  <body class="bg-background text-primary font-sans dark:bg-slate-900 dark:text-slate-100 transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
