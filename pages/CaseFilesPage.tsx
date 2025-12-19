@@ -49,23 +49,23 @@ const CaseFileAddForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="caseId">Case</Label>
+                <Label htmlFor="caseId">Vụ việc</Label>
                 <Select id="caseId" name="caseId" value={caseId} onChange={(e) => setCaseId(e.target.value)} required disabled={cases.length === 0}>
                     {cases.length > 0 ? (
                         cases.map(c => <option key={c.id} value={c.id}>{c.caseName}</option>)
                     ) : (
-                        <option>No cases available</option>
+                        <option>Không có vụ việc nào có sẵn</option>
                     )}
                 </Select>
             </div>
             <div>
-                <Label htmlFor="file">PDF File</Label>
+                <Label htmlFor="file">Tập tin PDF</Label>
                 <Input id="file" name="file" type="file" accept=".pdf" onChange={handleFileChange} required />
                 {fileError && <p className="text-red-500 text-sm mt-1">{fileError}</p>}
             </div>
             <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit" disabled={!caseId || cases.length === 0}>Add File</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit" disabled={!caseId || cases.length === 0}>Thêm tập tin</Button>
             </div>
         </form>
     );
@@ -99,18 +99,18 @@ const CaseFileEditForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="fileName">File Name</Label>
+                <Label htmlFor="fileName">Tên tập tin</Label>
                 <Input id="fileName" name="fileName" value={formData.fileName} onChange={handleChange} required />
             </div>
             <div>
-                <Label htmlFor="caseId">Case</Label>
+                <Label htmlFor="caseId">Vụ việc</Label>
                 <Select id="caseId" name="caseId" value={formData.caseId} onChange={handleChange} required>
                     {cases.map(c => <option key={c.id} value={c.id}>{c.caseName}</option>)}
                 </Select>
             </div>
             <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Changes</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit">Lưu thay đổi</Button>
             </div>
         </form>
     );
@@ -134,7 +134,7 @@ const CaseFilesPage: React.FC = () => {
             setCases(casesData);
             setError('');
         } catch (err: any) {
-            setError('Failed to fetch case files.');
+            setError('Không thể tải các tập tin hồ sơ.');
         } finally {
             setLoading(false);
         }
@@ -171,7 +171,7 @@ const CaseFilesPage: React.FC = () => {
             handleCloseModal();
             fetchData();
         } catch (err: any) {
-            setError(err.message || 'Failed to add file record.');
+            setError(err.message || 'Không thể thêm hồ sơ tập tin.');
         }
     };
 
@@ -191,17 +191,17 @@ const CaseFilesPage: React.FC = () => {
             handleCloseModal();
             fetchData();
         } catch (err: any) {
-             setError(err.message || 'Failed to update file record.');
+             setError(err.message || 'Không thể cập nhật hồ sơ tập tin.');
         }
     };
 
     const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this file record?')) {
+        if (window.confirm('Bạn có chắc chắn muốn xóa hồ sơ tập tin này không?')) {
             try {
                 await api.deleteCaseFile(id);
                 fetchData();
             } catch (err: any) {
-                setError(err.message || 'Failed to delete file record.');
+                setError(err.message || 'Không thể xóa hồ sơ tập tin.');
             }
         }
     };
@@ -211,8 +211,8 @@ const CaseFilesPage: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Manage Case Files</h1>
-                {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New File</Button>}
+                <h1 className="text-3xl font-bold text-primary">Quản lý tập tin hồ sơ</h1>
+                {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Thêm tập tin mới</Button>}
             </div>
 
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
@@ -222,11 +222,11 @@ const CaseFilesPage: React.FC = () => {
                     <table className="min-w-full">
                         <thead className="bg-background">
                             <tr>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">File Name</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Associated Case</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Path</th>
-                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Type</th>
-                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Actions</th>}
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Tên tập tin</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Vụ việc liên quan</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Đường dẫn</th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Loại</th>
+                                {isAdmin && <th className="px-6 py-3 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Hành động</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -246,7 +246,7 @@ const CaseFilesPage: React.FC = () => {
                             ))}
                              {files.length === 0 && (
                                 <tr>
-                                    <td colSpan={isAdmin ? 5 : 4} className="text-center py-16 text-secondary">No files found.</td>
+                                    <td colSpan={isAdmin ? 5 : 4} className="text-center py-16 text-secondary">Không tìm thấy tập tin nào.</td>
                                 </tr>
                             )}
                         </tbody>
@@ -254,7 +254,7 @@ const CaseFilesPage: React.FC = () => {
                 </Card>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingFile ? 'Edit Case File' : 'Add New Case File'}>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingFile ? 'Chỉnh sửa hồ sơ tập tin' : 'Thêm hồ sơ tập tin mới'}>
                {editingFile ? (
                    <CaseFileEditForm 
                         initialData={editingFile}

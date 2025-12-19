@@ -34,16 +34,16 @@ const PersonForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="name">Lawyer Name</Label>
+                <Label htmlFor="name">Tên luật sư</Label>
                 <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-                <Label htmlFor="contactInfo">Email / Contact Info</Label>
+                <Label htmlFor="contactInfo">Email / Thông tin liên hệ</Label>
                 <Input id="contactInfo" name="contactInfo" value={formData.contactInfo} onChange={handleChange} required />
             </div>
             <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Lawyer</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit">Lưu luật sư</Button>
             </div>
         </form>
     );
@@ -85,28 +85,28 @@ const AssignCaseModal: React.FC<{
             setCaseToAssign('');
             onSave(); // Notify parent to refetch
         } catch (error) {
-            alert('Failed to assign case.');
+            alert('Không thể gán vụ việc.');
         }
     };
     
     const unassignedCases = allCases.filter(c => !assignedCaseIds.has(c.id));
 
     return (
-         <Modal isOpen={true} onClose={onClose} title={`Assign Case to ${person.name}`}>
+         <Modal isOpen={true} onClose={onClose} title={`Gán vụ việc cho ${person.name}`}>
             {loading ? <Spinner /> : (
                  <div className="space-y-4">
-                    <Label>Select a case to assign</Label>
+                    <Label>Chọn một vụ việc để gán</Label>
                     <div className="flex gap-2">
                         <Select value={caseToAssign} onChange={e => setCaseToAssign(e.target.value)} className="flex-grow">
-                            <option value="">Select a case...</option>
+                            <option value="">Chọn vụ việc...</option>
                             {unassignedCases.map(c => (
                                 <option key={c.id} value={c.id}>{c.caseName}</option>
                             ))}
                         </Select>
-                        <Button onClick={handleAssign} disabled={!caseToAssign}>Assign</Button>
+                        <Button onClick={handleAssign} disabled={!caseToAssign}>Gán</Button>
                     </div>
                     <div className="flex justify-end pt-4">
-                        <Button variant="primary" onClick={onClose}>Done</Button>
+                        <Button variant="primary" onClick={onClose}>Xong</Button>
                     </div>
                  </div>
             )}
@@ -132,7 +132,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
             setLoading(true);
             const lawyerData = await api.getPersonById(Number(lawyerId));
             if (lawyerData.role.toLowerCase() !== 'lawyer') {
-                setError("This person is not a lawyer.");
+                setError("Người này không phải là luật sư.");
                 setLoading(false);
                 return;
             }
@@ -173,7 +173,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
             }
 
         } catch (err) {
-            setError("Failed to load lawyer details.");
+            setError("Không thể tải chi tiết luật sư.");
         } finally {
             setLoading(false);
         }
@@ -185,12 +185,12 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
 
     const handleRemoveFromCase = async (caseId: number) => {
         if (!lawyer) return;
-        if (window.confirm("Are you sure you want to remove this lawyer from the case?")) {
+        if (window.confirm("Bạn có chắc chắn muốn gỡ bỏ luật sư này khỏi vụ việc không?")) {
             try {
                 await api.deleteCasePerson(caseId, lawyer.id);
                 fetchData();
             } catch (err) {
-                alert("Failed to remove lawyer from case.");
+                alert("Không thể gỡ bỏ luật sư khỏi vụ việc.");
             }
         }
     };
@@ -201,13 +201,13 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
     
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!lawyer) return <p>Lawyer not found.</p>;
+    if (!lawyer) return <p>Không tìm thấy luật sư.</p>;
     
     const PIE_COLORS = ['#4f46e5', '#14b8a6', '#f59e0b', '#ef4444', '#64748b', '#3b82f6'];
 
     return (
         <div>
-            <Link to="/app/lawyers" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all lawyers</Link>
+            <Link to="/app/lawyers" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách luật sư</Link>
             <div className="md:flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-bold text-primary mb-2">{lawyer.name}</h1>
@@ -216,30 +216,30 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                  <div className="flex gap-2 mt-4 md:mt-0">
                     {!isLawyer && (
                         <>
-                            <Button onClick={() => setIsQuestionModalOpen(true)} variant="secondary"><ChatBubbleIcon/>Ask a Question</Button>
-                            <Button onClick={() => setIsAppointmentModalOpen(true)}><CalendarIcon/>Book Appointment</Button>
+                            <Button onClick={() => setIsQuestionModalOpen(true)} variant="secondary"><ChatBubbleIcon/>Hỏi một câu hỏi</Button>
+                            <Button onClick={() => setIsAppointmentModalOpen(true)}><CalendarIcon/>Đặt lịch hẹn</Button>
                         </>
                     )}
-                    {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+                    {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Gán vụ việc</Button>}
                  </div>
             </div>
 
             <div className="space-y-8">
                 <Card className="overflow-hidden">
                     <div className="p-6 border-b border-border">
-                        <h2 className="text-2xl font-semibold text-primary">Assigned Cases ({assignedCases.length})</h2>
+                        <h2 className="text-2xl font-semibold text-primary">Các vụ việc được gán ({assignedCases.length})</h2>
                     </div>
                     {assignedCases.length > 0 ? (
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-left text-sm">
                                 <thead className="bg-background/50">
                                     <tr>
-                                        <th className="px-6 py-4 font-semibold text-secondary">Case Name</th>
-                                        <th className="px-6 py-4 font-semibold text-secondary">Court</th>
-                                        <th className="px-6 py-4 font-semibold text-secondary">Location</th>
-                                        <th className="px-6 py-4 font-semibold text-secondary">Category</th>
-                                        <th className="px-6 py-4 font-semibold text-secondary">Status</th>
-                                        {isAdmin && <th className="px-6 py-4 font-semibold text-secondary text-right">Actions</th>}
+                                        <th className="px-6 py-4 font-semibold text-secondary">Tên vụ việc</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Tòa án</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Vị trí</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Danh mục</th>
+                                        <th className="px-6 py-4 font-semibold text-secondary">Trạng thái</th>
+                                        {isAdmin && <th className="px-6 py-4 font-semibold text-secondary text-right">Hành động</th>}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-border">
@@ -268,7 +268,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                                                             handleRemoveFromCase(caseItem.id);
                                                         }}
                                                     >
-                                                        Remove
+                                                        Gỡ bỏ
                                                     </Button>
                                                 </td>
                                             )}
@@ -278,12 +278,12 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                             </table>
                         </div>
                     ) : (
-                        <p className="p-8 text-secondary text-center">This lawyer is not assigned to any cases yet.</p>
+                        <p className="p-8 text-secondary text-center">Luật sư này chưa được gán cho bất kỳ vụ việc nào.</p>
                     )}
                 </Card>
 
                 <Card className="p-6">
-                    <h2 className="text-2xl font-semibold text-primary mb-4">Case Category Distribution</h2>
+                    <h2 className="text-2xl font-semibold text-primary mb-4">Phân bố danh mục vụ việc</h2>
                     {casesByCategory.length > 0 ? (
                         <div className="w-full h-80">
                             <ResponsiveContainer>
@@ -310,7 +310,7 @@ const LawyerDetail: React.FC<{ lawyerId: string }> = ({ lawyerId }) => {
                             </ResponsiveContainer>
                         </div>
                     ) : (
-                        <p className="text-secondary py-8 text-center">No case category data to display.</p>
+                        <p className="text-secondary py-8 text-center">Không có dữ liệu danh mục vụ việc để hiển thị.</p>
                     )}
                 </Card>
             </div>
@@ -362,7 +362,7 @@ const LawyerList: React.FC = () => {
             const allPersons = await api.getPersons();
             setLawyers(allPersons.filter(person => person.role.toLowerCase() === 'lawyer'));
         } catch (err: any) {
-            setError('Failed to fetch lawyer information.');
+            setError('Không thể tải thông tin luật sư.');
         } finally {
             setLoading(false);
         }
@@ -393,21 +393,21 @@ const LawyerList: React.FC = () => {
             handleCloseModal();
             fetchLawyers();
         } catch (err: any) {
-            setError(err.message || 'Failed to save lawyer.');
+            setError(err.message || 'Không thể lưu luật sư.');
         }
     };
     
     const handleDelete = async (id: number) => {
-        if (window.confirm("Are you sure you want to delete this lawyer? They will be unassigned from all cases.")) {
+        if (window.confirm("Bạn có chắc chắn muốn xoá luật sư này không? Luật sư sẽ hủy khỏi các vụ việc.")) {
             setError('');
             try {
                 await api.deletePerson(id);
                 fetchLawyers();
             } catch (err: any) {
                 if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
-                    setError('Cannot delete this lawyer. They are associated with questions, appointments, or cases. Please reassign or remove these associations first.');
+                    setError('Không thể xoá luật sư này. Anh ta được liên kết với câu hỏi, lịch hẹn hoặc vụ việc. Vui lòng xóa các liên kết này trước tiên.');
                 } else {
-                    setError(err.message || 'Failed to delete lawyer.');
+                    setError(err.message || 'Không thể xoá luật sư.');
                 }
             }
         }
@@ -422,14 +422,14 @@ const LawyerList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Lawyers</h1>
-                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Lawyer</Button>}
+                <h1 className="text-3xl font-bold text-primary">Luật sư</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Thêm luật sư mới</Button>}
             </div>
 
             <div className="mb-6">
                 <Input
                     type="text"
-                    placeholder="Search for a lawyer by name..."
+                    placeholder="Tìm kiếm luật sư theo tên..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -457,20 +457,20 @@ const LawyerList: React.FC = () => {
                                         <p className="text-secondary text-sm mb-4">{lawyer.contactInfo}</p>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-border text-right">
-                                        <Link to={`/app/lawyers/${lawyer.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                        <Link to={`/app/lawyers/${lawyer.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">Xem chi tiết &rarr;</Link>
                                     </div>
                                 </Card>
                             ))}
                         </div>
                     ) : (
                         <p className="text-center text-secondary mt-12">
-                            No lawyers found.
+                            Không tìm thấy luật sư nào.
                         </p>
                     )}
                 </>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingLawyer ? 'Edit Lawyer' : 'Add New Lawyer'}>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingLawyer ? 'Chỉnh sửa luật sư' : 'Thêm luật sư mới'}>
                 <PersonForm
                     initialData={editingLawyer}
                     onSubmit={handleFormSubmit}

@@ -30,7 +30,7 @@ const ForgotPasswordPage: React.FC = () => {
             setStep(2);
             setSuccess('');
         } catch (err: any) {
-            setError(err.message || 'Failed to send reset code. Make sure the email is registered.');
+            setError(err.message || 'Không thể gửi mã đặt lại. Hãy chắc chắn email đã đăng ký.');
         } finally {
             setIsLoading(false);
         }
@@ -43,11 +43,11 @@ const ForgotPasswordPage: React.FC = () => {
         setIsLoading(true);
         try {
             const responseMessage = await api.resetPassword({ email, newPassword, verificationCode });
-            setSuccess(`${responseMessage} You can now log in with your new password.`);
+            setSuccess(`${responseMessage} Bây giờ bạn có thể đăng nhập bằng mật khẩu mới của bạn.`);
             console.log(success);
             setTimeout(() => navigate('/login'), 3000);
         } catch (err: any) {
-            setError(err.message || 'Failed to reset password. Please check the code and try again.');
+            setError(err.message || 'Không thể đặt lại mật khẩu. Vui lòng kiểm tra mã và thử lại.');
         } finally {
             setIsLoading(false);
         }
@@ -69,9 +69,9 @@ const ForgotPasswordPage: React.FC = () => {
                     <span className="text-3xl font-bold text-primary">Binh An Law</span>
                 </Link>
                 <Card className="text-left p-8">
-                    <h2 className="text-3xl font-bold text-center text-primary mb-2">Reset Password</h2>
+                    <h2 className="text-3xl font-bold text-center text-primary mb-2">Quên mật khẩu</h2>
                     <p className="text-center text-secondary mb-8">
-                        {step === 1 ? 'Enter your email to receive a reset code.' : `A code has been sent to ${email}.`}
+                        {step === 1 ? 'Nhập email của bạn để nhận mã đặt lại.' : `Một mã đã được gửi tới ${email}.`}
                     </p>
 
                     {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center text-sm">{error}</p>}
@@ -87,51 +87,51 @@ const ForgotPasswordPage: React.FC = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    placeholder="Enter your registered email"
+                                    placeholder="Nhập email đã đăng ký của bạn"
                                 />
                             </div>
                             <div>
                                 <Button type="submit" className="w-full py-3" disabled={isLoading}>
-                                    {isLoading ? 'Sending...' : 'Send Reset Code'}
+                                    {isLoading ? 'Đang gửi...' : 'Gửi mã đặt lại'}
                                 </Button>
                             </div>
                         </form>
                     ) : (
                         <form onSubmit={handleResetPassword} className="space-y-6">
                             <div>
-                                <Label htmlFor="verificationCode">Verification Code</Label>
+                                <Label htmlFor="verificationCode">Mã Xác nhận</Label>
                                 <Input
                                     id="verificationCode"
                                     type="text"
                                     value={verificationCode}
                                     onChange={(e) => setVerificationCode(e.target.value)}
                                     required
-                                    placeholder="Enter code from email"
+                                    placeholder="Nhập mã từ email"
                                 />
                             </div>
                             <div>
-                                <Label htmlFor="newPassword">New Password</Label>
+                                <Label htmlFor="newPassword">Mật khẩu mới</Label>
                                 <Input
                                     id="newPassword"
                                     type="password"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     required
-                                    placeholder="Enter your new password"
+                                    placeholder="Nhập mật khẩu mới của bạn"
                                 />
                             </div>
                             <div>
                                 <Button type="submit" className="w-full py-3" disabled={isLoading || (!!success && step === 2)}>
-                                    {isLoading ? 'Resetting...' : 'Reset Password'}
+                                    {isLoading ? 'Đang đặt lại...' : 'Đặt lại mật khẩu'}
                                 </Button>
                             </div>
                         </form>
                     )}
 
                     <p className="text-center text-sm text-secondary mt-6">
-                        Remember your password?{' '}
+                        Nhớ lại mật khẩu rồi?{' '}
                         <Link to="/login" className="font-medium text-accent hover:text-accent-hover">
-                            Log In
+                            Đăng nhập
                         </Link>
                     </p>
                 </Card>

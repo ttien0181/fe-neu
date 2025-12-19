@@ -60,23 +60,23 @@ export const AskQuestionModal: React.FC<{
     };
 
     return (
-        <Modal isOpen={true} onClose={onClose} title="Ask a Question">
+        <Modal isOpen={true} onClose={onClose} title="Hỏi một câu hỏi">
             {loading ? <Spinner /> : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     <div>
-                        <Label htmlFor="lawyerId">To Lawyer</Label>
+                        <Label htmlFor="lawyerId">Cho luật sư</Label>
                         <Select id="lawyerId" value={lawyerId} onChange={e => setLawyerId(e.target.value)} required disabled={!!initialLawyerId}>
                             {lawyers.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                         </Select>
                     </div>
                     <div>
-                        <Label htmlFor="content">Your Question</Label>
+                        <Label htmlFor="content">Câu hỏi của bạn</Label>
                         <Textarea id="content" value={content} onChange={e => setContent(e.target.value)} rows={6} required />
                     </div>
                     <div className="flex justify-end gap-4 pt-4">
                         <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-                        <Button type="submit">Send Question</Button>
+                        <Button type="submit">Gửi câu hỏi</Button>
                     </div>
                 </form>
             )}
@@ -121,7 +121,7 @@ const MyQuestionsPage: React.FC = () => {
     return (
         <div>
              <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">My Questions</h1>
+                <h1 className="text-3xl font-bold text-primary">Câu hỏi của tôi</h1>
                 <Button onClick={() => setIsModalOpen(true)}><PlusIcon /> Ask a New Question</Button>
             </div>
             
@@ -152,18 +152,18 @@ const MyQuestionsPage: React.FC = () => {
                                 <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedId === q.id ? 'max-h-screen mt-4 pt-4 border-t border-border' : 'max-h-0'}`}>
                                     {q.answer ? (
                                         <div>
-                                            <h3 className="font-semibold text-primary mb-2">Answer from {q.lawyerName}:</h3>
+                                            <h3 className="font-semibold text-primary mb-2">Trả lời từ {q.lawyerName}:</h3>
                                             <p className="text-primary whitespace-pre-wrap bg-background p-3 rounded-md">{q.answer}</p>
                                         </div>
                                     ) : (
-                                        <p className="text-secondary italic">The lawyer has not answered this question yet.</p>
+                                        <p className="text-secondary italic">Luật sư chưa trả lời câu hỏi này.</p>
                                     )}
                                 </div>
                             </Card>
                         ))
                     ) : (
                         <Card className="text-center p-16">
-                            <p className="text-secondary">You have not asked any questions yet.</p>
+                            <p className="text-secondary">Bạn chưa đặt câu hỏi nào.</p>
                         </Card>
                     )}
                 </div>

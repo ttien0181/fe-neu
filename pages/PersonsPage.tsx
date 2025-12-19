@@ -31,23 +31,23 @@ const PersonForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="name">Họ và tên</Label>
                 <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">Vai trò</Label>
                 <Select id="role" name="role" value={formData.role} onChange={handleChange} required>
-                    <option value="plaintiff">Plaintiff</option>
-                    <option value="defendant">Defendant</option>
+                    <option value="plaintiff">Nguyên đơn</option>
+                    <option value="defendant">Bị đơn</option>
                 </Select>
             </div>
             <div>
-                <Label htmlFor="contactInfo">Contact Info</Label>
+                <Label htmlFor="contactInfo">Thông tin liên hệ</Label>
                 <Input id="contactInfo" name="contactInfo" value={formData.contactInfo} onChange={handleChange} />
             </div>
             <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Person</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit">Lưu đương sự</Button>
             </div>
         </form>
     );
@@ -96,21 +96,21 @@ const AssignCaseModal: React.FC<{
     const unassignedCases = allCases.filter(c => !assignedCaseIds.has(c.id));
 
     return (
-         <Modal isOpen={true} onClose={onClose} title={`Assign Case to ${person.name}`}>
+         <Modal isOpen={true} onClose={onClose} title={`Gán vụ việc cho ${person.name}`}>
             {loading ? <Spinner /> : (
                  <div className="space-y-4">
-                    <Label>Select a case to assign</Label>
+                    <Label>Chọn vụ việc để gán</Label>
                     <div className="flex gap-2">
                         <Select value={caseToAssign} onChange={e => setCaseToAssign(e.target.value)} className="flex-grow">
-                            <option value="">Select a case...</option>
+                            <option value="">Chọn một vụ việc...</option>
                             {unassignedCases.map(c => (
                                 <option key={c.id} value={c.id}>{c.caseName}</option>
                             ))}
                         </Select>
-                        <Button onClick={handleAssign} disabled={!caseToAssign}>Assign</Button>
+                        <Button onClick={handleAssign} disabled={!caseToAssign}>Gán</Button>
                     </div>
                     <div className="flex justify-end pt-4">
-                        <Button variant="primary" onClick={onClose}>Done</Button>
+                        <Button variant="primary" onClick={onClose}>Xong</Button>
                     </div>
                  </div>
             )}
@@ -138,7 +138,7 @@ const PersonDetail: React.FC<{ personId: string }> = ({ personId }) => {
                 .map(cp => cp.caseId);
             setAssignedCases(allCases.filter(c => caseIds.includes(c.id)));
         } catch (err) {
-            setError("Failed to load person details.");
+            setError("Không thể tải chi tiết đượng sự.");
         } finally {
             setLoading(false);
         }
@@ -150,33 +150,33 @@ const PersonDetail: React.FC<{ personId: string }> = ({ personId }) => {
     
     const handleRemoveFromCase = async (caseId: number) => {
         if (!person) return;
-        if (window.confirm("Are you sure you want to remove this person from the case?")) {
+        if (window.confirm("Bạn có chắc chắn muốn gỡ bỏ đương sự này khỏi vụ việc không?")) {
             try {
                 await api.deleteCasePerson(caseId, person.id);
                 fetchData();
             } catch (err) {
-                alert("Failed to remove person from case.");
+                alert("Không thể gỡ bỏ đương sự khỏi vụ việc.");
             }
         }
     };
     
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!person) return <p>Person not found.</p>;
+    if (!person) return <p>Không tìm thấy đương sự.</p>;
     
     return (
         <div>
-            <Link to="/app/persons" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all persons</Link>
+            <Link to="/app/persons" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách đương sự</Link>
             <div className="flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-bold text-primary mb-2">{person.name}</h1>
                     <p className="text-secondary capitalize">{person.role}</p>
                 </div>
-                 {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Assign to Case</Button>}
+                 {isAdmin && <Button onClick={() => setIsAssignModalOpen(true)}>Gán vụ việc</Button>}
             </div>
 
             <Card className="p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Associated Cases ({assignedCases.length})</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-primary">Vụ việc liên quan ({assignedCases.length})</h2>
                 {assignedCases.length > 0 ? (
                     <div className="divide-y divide-border -mx-6">
                         {assignedCases.map(caseItem => (
@@ -186,15 +186,15 @@ const PersonDetail: React.FC<{ personId: string }> = ({ personId }) => {
                                     <p className="text-sm text-secondary">{caseItem.courtName}</p>
                                 </div>
                                  <div className="flex items-center gap-4">
-                                     <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Case</Link>
+                                     <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">Xem vụ việc</Link>
                                      {/* Fix: Removed size-related classes as they are now handled by the `size` prop. */}
-                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Remove</Button>}
+                                     {isAdmin && <Button variant="danger" size="sm" onClick={() => handleRemoveFromCase(caseItem.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">Gỡ bỏ</Button>}
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-secondary py-8 text-center">This person is not associated with any cases yet.</p>
+                    <p className="text-secondary py-8 text-center">Đương sự này chưa được gán cho bất kỳ vụ việc nào.</p>
                 )}
             </Card>
              {isAssignModalOpen && (
@@ -224,7 +224,7 @@ const PersonList: React.FC = () => {
             const allPersons = await api.getPersons();
             setPersons(allPersons.filter(person => person.role.toLowerCase() !== 'lawyer'));
         } catch (err: any) {
-            setError('Failed to fetch person information.');
+            setError('Không thể tải thông tin đương sự.');
         } finally {
             setLoading(false);
         }
@@ -259,21 +259,21 @@ const PersonList: React.FC = () => {
             handleCloseModal();
             fetchPersons();
         } catch (err: any) {
-            setError(err.message || 'Failed to save person.');
+            setError(err.message || 'Không thể lưu thông tin đương sự.');
         }
     };
     
     const handleDelete = async (id: number) => {
-        if (window.confirm("Are you sure you want to delete this person? They will be unassigned from all cases.")) {
+        if (window.confirm("Bạn có chắc chắn muốn xóa đương sự này? Họ sẽ được gỡ bỏ khỏi tất cả vụ việc.")) {
             setError('');
             try {
                 await api.deletePerson(id);
                 fetchPersons();
             } catch (err: any) {
                 if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
-                    setError('Cannot delete this person. They are currently associated with one or more cases. Please remove them from all cases first.');
+                    setError('Không thể xóa đương sự này. Họ hiện đang được liên kết với một hoặc nhiều vụ việc. Vui lòng gỡ bỏ họ khỏi tất cả vụ việc trước.');
                 } else {
-                    setError(err.message || 'Failed to delete person.');
+                    setError(err.message || 'Không thể xóa đương sự.');
                 }
             }
         }
@@ -290,17 +290,17 @@ const PersonList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Persons</h1>
-                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Person</Button>}
+                <h1 className="text-3xl font-bold text-primary">Đương sự</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Thêm đương sự</Button>}
             </div>
 
             <Card className="mb-8 p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Input name="search" placeholder="Search by name..." value={filters.search} onChange={handleFilterChange} />
+                    <Input name="search" placeholder="Tìm kiếm theo tên..." value={filters.search} onChange={handleFilterChange} />
                     <Select name="role" value={filters.role} onChange={handleFilterChange}>
-                        <option value="all">All Roles</option>
-                        <option value="plaintiff">Plaintiff</option>
-                        <option value="defendant">Defendant</option>
+                        <option value="all">Tất cả vai trò</option>
+                        <option value="plaintiff">Nguyên đơn</option>
+                        <option value="defendant">Bị đơn</option>
                     </Select>
                 </div>
             </Card>
@@ -328,20 +328,21 @@ const PersonList: React.FC = () => {
                                         <p className="text-secondary text-sm capitalize">{person.role}</p>
                                     </div>
                                     <div className="mt-4 pt-4 border-t border-border text-right">
-                                        <Link to={`/app/persons/${person.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                        <Link to={`/app/persons/${person.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">Xem chi tiết &rarr;</Link>
                                     </div>
                                 </Card>
                             ))}
                         </div>
                     ) : (
                         <p className="text-center text-secondary py-16">
-                            No persons found matching your criteria.
+                            Không có đương sự nào phù hợp với tiêu chí tìm kiếm của bạn.
                         </p>
-                    )}
+                    )
+                }
                 </>
             )}
             
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingPerson ? 'Edit Person' : 'Add New Person'}>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingPerson ? 'Chỉnh sửa đương sự' : 'Thêm đương sự'}>
                 <PersonForm
                     initialData={editingPerson}
                     onSubmit={handleFormSubmit}

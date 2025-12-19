@@ -116,7 +116,7 @@ const DashboardPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                         <StatCard title="Tổng số vụ việc" value={stats.cases} />
                         <StatCard title="Tổng số danh mục" value={stats.categories} />
-                        <StatCard title="Tổng số nhân sự" value={stats.persons} />
+                        <StatCard title="Tổng số đương sự" value={stats.persons} />
                     </div>
 
                     <Card className="p-6 mb-8">
@@ -136,7 +136,7 @@ const DashboardPage: React.FC = () => {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <Card className="p-6">
-                            <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Cơ cấu nhân sự theo vai trò</h2>
+                            <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Cơ cấu đương sự theo vai trò</h2>
                             {personsByRole.length > 0 ? (
                                 <div className="w-full h-80">
                                     <ResponsiveContainer>
@@ -151,7 +151,7 @@ const DashboardPage: React.FC = () => {
                                         </PieChart>
                                     </ResponsiveContainer>
                                 </div>
-                            ) : <p className="text-secondary dark:text-slate-400">Không có dữ liệu nhân sự.</p>}
+                            ) : <p className="text-secondary dark:text-slate-400">Không có dữ liệu đương sự.</p>}
                         </Card>
                          <Card className="p-6">
                             <h2 className="text-2xl font-semibold text-primary dark:text-slate-100 mb-4">Hoạt động gần đây</h2>

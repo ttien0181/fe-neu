@@ -25,16 +25,16 @@ const CategoryForm: React.FC<{
     return (
         <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-                <Label htmlFor="name">Category Name</Label>
+                <Label htmlFor="name">Tên danh mục</Label>
                 <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
             </div>
             <div>
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">Mô tả</Label>
                 <Textarea id="description" name="description" value={formData.description || ''} onChange={handleChange} />
             </div>
             <div className="flex justify-end gap-4 pt-4">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Category</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit">Lưu danh mục</Button>
             </div>
         </form>
     );
@@ -56,7 +56,7 @@ const CategoryDetail: React.FC<{ categoryId: string }> = ({ categoryId }) => {
                 const allCases = await api.getCases();
                 setCases(allCases.filter(c => c.categoryId === Number(categoryId)));
             } catch (e) {
-                setError("Failed to load category details.");
+                setError("Không thể tải chi tiết danh mục.");
             } finally {
                 setLoading(false);
             }
@@ -66,16 +66,16 @@ const CategoryDetail: React.FC<{ categoryId: string }> = ({ categoryId }) => {
 
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!category) return <p>Category not found.</p>;
+    if (!category) return <p>Không tìm thấy danh mục.</p>;
 
     return (
         <div>
-            <Link to="/app/categories" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all categories</Link>
+            <Link to="/app/categories" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách danh mục</Link>
             <h1 className="text-4xl font-bold text-primary mb-2">{category.name}</h1>
             <p className="text-secondary mb-8 text-lg">{category.description}</p>
             
             <Card className="p-6">
-                <h2 className="text-2xl font-semibold mb-4 text-primary">Cases in this Category ({cases.length})</h2>
+                <h2 className="text-2xl font-semibold mb-4 text-primary">Vụ việc trong danh mục này ({cases.length})</h2>
                 {cases.length > 0 ? (
                     <div className="divide-y divide-border -mx-6">
                         {cases.map(caseItem => (
@@ -84,12 +84,12 @@ const CategoryDetail: React.FC<{ categoryId: string }> = ({ categoryId }) => {
                                     <h3 className="font-semibold text-primary">{caseItem.caseName}</h3>
                                     <p className="text-sm text-secondary">{caseItem.courtName}</p>
                                 </div>
-                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">View Details &rarr;</Link>
+                                <Link to={`/app/cases/${caseItem.id}`} className="text-accent hover:underline text-sm font-semibold">Xem chi tiết &rarr;</Link>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <p className="text-secondary py-8 text-center">No cases found in this category.</p>
+                    <p className="text-secondary py-8 text-center">Không có vụ việc nào trong danh mục này.</p>
                 )}
             </Card>
         </div>
@@ -113,7 +113,7 @@ const CategoryList: React.FC = () => {
             setCategories(data);
             setError('');
         } catch (err: any) {
-            setError('Failed to fetch categories.');
+            setError('Không thể tải danh mục.');
         } finally {
             setLoading(false);
         }
@@ -144,21 +144,21 @@ const CategoryList: React.FC = () => {
             handleCloseModal();
             fetchCategories();
         } catch (err: any) {
-            setError(err.message || 'Failed to save category.');
+            setError(err.message || 'Không thể lưu danh mục.');
         }
     };
 
     const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
+        if (window.confirm('Bạn có chắc chắn muốn xóa danh mục này không?')) {
             setError('');
             try {
                 await api.deleteCategory(id);
                 fetchCategories();
             } catch (err: any) {
                 if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
-                    setError('Cannot delete this category. It is currently associated with one or more cases. Please reassign or delete the associated cases first.');
+                    setError('Không thể xóa danh mục này. Nó hiện được liên kết với một hoặc nhiều vụ việc. Vui lòng tái chỉ định hoặc xóa các vụ việc liên kết trước.');
                 } else {
-                    setError(err.message || 'Failed to delete category.');
+                    setError(err.message || 'Không thể xóa danh mục.');
                 }
             }
         }
@@ -171,13 +171,13 @@ const CategoryList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Categories</h1>
-                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Add New Category</Button>}
+                <h1 className="text-3xl font-bold text-primary">Danh mục</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon/> Thêm danh mục mới</Button>}
             </div>
 
             <div className="mb-6">
                 <Input 
-                    placeholder="Search by category name..." 
+                    placeholder="Tìm kiếm theo tên danh mục..." 
                     value={searchTerm} 
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
@@ -203,18 +203,18 @@ const CategoryList: React.FC = () => {
                                     <p className="text-secondary text-sm mb-4 line-clamp-3 h-15">{category.description}</p>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-border text-right">
-                                    <Link to={`/app/categories/${category.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                    <Link to={`/app/categories/${category.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">Xem chi tiết &rarr;</Link>
                                 </div>
                             </Card>
                         ))}
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <p className="text-secondary">No categories found matching your search.</p>
+                        <p className="text-secondary">Không tìm thấy danh mục nào phù hợp với tìm kiếm của bạn.</p>
                     </div>
                 )
             )}
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCategory ? 'Edit Category' : 'Add New Category'}>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCategory ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}>
                 <CategoryForm
                     initialData={editingCategory}
                     onSubmit={handleFormSubmit}

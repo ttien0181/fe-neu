@@ -31,7 +31,7 @@ const RegisterPage: React.FC = () => {
       setSuccess(responseMessage);
       setStep(2);
     } catch (err: any) {
-      setError(err.message || 'Failed to send verification code.');
+      setError(err.message || 'Không thể gửi mã xác nhận.');
     } finally {
       setIsLoading(false);
     }
@@ -48,7 +48,7 @@ const RegisterPage: React.FC = () => {
       setIsRegistrationComplete(true);
       setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please check your details.');
+      setError(err.message || 'Đăng ký thất bại. Vui lòng kiểm tra thông tin của bạn.');
     } finally {
       setIsLoading(false);
     }
@@ -62,9 +62,9 @@ const RegisterPage: React.FC = () => {
             <span className="text-3xl font-bold text-primary">Binh An Law</span>
         </Link>
         <Card className="text-left p-8">
-          <h2 className="text-3xl font-bold text-center text-primary mb-2">Create an Account</h2>
+          <h2 className="text-3xl font-bold text-center text-primary mb-2">Tạo tài khoản</h2>
           <p className="text-center text-secondary mb-8">
-            {step === 1 ? 'Start by entering your email.' : `A code has been sent to ${email}.`}
+            {step === 1 ? 'Bắt đầu bằng cách nhập email của bạn.' : `Mã đã được gửi tới ${email}.`}
           </p>
 
           {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4 text-center text-sm">{error}</p>}
@@ -80,63 +80,63 @@ const RegisterPage: React.FC = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  placeholder="Enter your email address"
+                  placeholder="Nhập địa chỉ email của bạn"
                 />
               </div>
               <div>
                 <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading}>
-                  {isLoading ? 'Sending Code...' : 'Send Verification Code'}
+                  {isLoading ? 'Đang gửi mã...' : 'Gửi mã xác nhận'}
                 </Button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-6">
               <div>
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username">Tên đăng nhập</Label>
                 <Input
                   id="username"
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
-                  placeholder="Choose a username"
+                  placeholder="Chọn tên đăng nhập"
                 />
               </div>
               <div>
-                <Label htmlFor="password-input">Password</Label>
+                <Label htmlFor="password-input">Mật khẩu</Label>
                 <Input
                   id="password-input"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  placeholder="Create a strong password"
+                  placeholder="Tạo mật khẩu mạnh"
                 />
               </div>
               <div>
-                <Label htmlFor="verificationCode">Verification Code</Label>
+                <Label htmlFor="verificationCode">Mã xác nhận</Label>
                 <Input
                   id="verificationCode"
                   type="text"
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                   required
-                  placeholder="Enter the code from your email"
+                  placeholder="Nhập mã từ email của bạn"
                 />
               </div>
               {success && step === 2 && <p className="text-green-600 text-sm">{success}</p>}
               <div>
                 <Button type="submit" className="w-full px-4 py-2 rounded-lg text-white bg-accent hover:bg-accent-hover transition-colors duration-300 font-semibold shadow-sm hover:shadow-md transform hover:-translate-y-px" disabled={isLoading || isRegistrationComplete}>
-                  {isLoading ? 'Creating account...' : 'Create Account'}
+                  {isLoading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
                 </Button>
               </div>
             </form>
           )}
 
           <p className="text-center text-sm text-secondary mt-6">
-            Already have an account?{' '}
+            Bạn đã có tài khoản rồi?{' '}
             <Link to="/login" className="font-medium text-accent hover:text-accent-hover">
-              Log In
+              Đăng nhập
             </Link>
           </p>
         </Card>

@@ -20,10 +20,10 @@ const AppointmentDetail: React.FC<{ appointmentId: string }> = ({ appointmentId 
                 if (appt) {
                     setAppointment(appt);
                 } else {
-                    setError("Appointment not found.");
+                    setError("Không tìm thấy lịch hẹn.");
                 }
             } catch (err) {
-                setError("Failed to fetch appointment details.");
+                setError("Không thể tải chi tiết lịch hẹn.");
             } finally {
                 setLoading(false);
             }
@@ -35,10 +35,10 @@ const AppointmentDetail: React.FC<{ appointmentId: string }> = ({ appointmentId 
         if (!appointment) return;
         try {
             await api.updateAppointmentStatus(appointment.id, status);
-            alert(`Appointment has been ${status.toLowerCase()}.`);
+            alert(`Lịch hẹn đã  ${status === 'ACCEPTED' ? 'được chấp nhận' : 'bị từ chối'}.`);
             navigate('/app/appointments');
         } catch (err: any) {
-            setError(err.message || 'Failed to update status.');
+            setError(err.message || 'Không thể cập nhật trạng thái.');
         }
     };
     
@@ -48,19 +48,19 @@ const AppointmentDetail: React.FC<{ appointmentId: string }> = ({ appointmentId 
 
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!appointment) return <p>Appointment not found.</p>;
+    if (!appointment) return <p>Không tìm thấy lịch hẹn.</p>;
 
     return (
         <div>
-            <Link to="/app/appointments" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all appointments</Link>
+            <Link to="/app/appointments" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách lịch hẹn</Link>
             <Card className="p-6">
-                <p className="text-sm text-secondary mb-2">From: {appointment.userName}</p>
-                <h2 className="text-2xl font-semibold text-primary mb-1">Appointment Request</h2>
+                <p className="text-sm text-secondary mb-2">Từ: {appointment.userName}</p>
+                <h2 className="text-2xl font-semibold text-primary mb-1">Yêu cầu lịch hẹn</h2>
                 <p className="text-lg text-primary font-medium mb-4">{formatDateTime(appointment.appointmentTime)}</p>
 
                 {appointment.notes && (
                     <>
-                        <h3 className="font-semibold text-secondary mt-4">Notes from client:</h3>
+                        <h3 className="font-semibold text-secondary mt-4">Ghi chú từ khách hàng:</h3>
                         <p className="text-primary whitespace-pre-wrap bg-background p-4 rounded-md">{appointment.notes}</p>
                     </>
                 )}
@@ -69,14 +69,14 @@ const AppointmentDetail: React.FC<{ appointmentId: string }> = ({ appointmentId 
                 
                 {appointment.status === 'PENDING' && (
                     <div className="mt-6 flex justify-end gap-4 border-t border-border pt-6">
-                        <Button variant="danger" onClick={() => handleUpdateStatus('REJECTED')}>Reject</Button>
-                        <Button variant="primary" onClick={() => handleUpdateStatus('ACCEPTED')}>Accept</Button>
+                        <Button variant="danger" onClick={() => handleUpdateStatus('REJECTED')}>Từ chối</Button>
+                        <Button variant="primary" onClick={() => handleUpdateStatus('ACCEPTED')}>Chấp nhận</Button>
                     </div>
                 )}
                 
                  {appointment.status !== 'PENDING' && (
                     <div className="mt-6 border-t border-border pt-4">
-                        <p className="font-semibold text-lg">Status: <span className="font-bold">{appointment.status}</span></p>
+                        <p className="font-semibold text-lg">Trạng thái: <span className="font-bold">{appointment.status === 'ACCEPTED' ? 'Đã chấp nhận' : 'Đã từ chối'}</span></p>
                     </div>
                  )}
             </Card>
@@ -93,7 +93,7 @@ const AppointmentList: React.FC = () => {
 
     const fetchAppointments = useCallback(async () => {
         if (!user) {
-            setError("Could not identify the logged-in lawyer.");
+            setError("Không thể xác định luật sư đã đăng nhập.");
             setLoading(false);
             return;
         };
@@ -105,7 +105,7 @@ const AppointmentList: React.FC = () => {
                 .sort((a,b) => new Date(a.appointmentTime.replace(' ', 'T')).getTime() - new Date(b.appointmentTime.replace(' ', 'T')).getTime());
             setAppointments(lawyerAppointments);
         } catch (err: any) {
-            setError('Failed to fetch appointments.');
+            setError('Không thể tải lịch hẹn.');
         } finally {
             setLoading(false);
         }
@@ -130,7 +130,7 @@ const AppointmentList: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-primary mb-8">Client Appointments</h1>
+            <h1 className="text-3xl font-bold text-primary mb-8">Lịch hẹn từ khách hàng</h1>
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
                 <div className="space-y-4">
@@ -140,16 +140,16 @@ const AppointmentList: React.FC = () => {
                                 <Card className="p-4 transition-all duration-300 hover:shadow-md hover:border-accent hover:-translate-y-0.5">
                                     <div className="flex justify-between items-center">
                                         <div>
-                                            <p className="font-semibold text-primary">Request from: {a.userName}</p>
+                                            <p className="font-semibold text-primary">Yêu cầu từ: {a.userName}</p>
                                             <p className="text-sm text-secondary">{formatDateTime(a.appointmentTime)}</p>
                                         </div>
-                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(a.status)}`}>{a.status}</span>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(a.status)}`}>{a.status === 'ACCEPTED' ? 'Đã đồng ý' : a.status === 'REJECTED' ? 'Đã từ chối' : 'Chờ xử lý'}</span>
                                     </div>
                                 </Card>
                             </Link>
                         ))
                     ) : (
-                        <p className="text-center text-secondary py-16">You have no appointment requests.</p>
+                        <p className="text-center text-secondary py-16">Bạn không có yêu cầu lịch hẹn nào.</p>
                     )}
                 </div>
             )}
@@ -164,8 +164,8 @@ const AppointmentsPage: React.FC = () => {
     if (!isLawyer) {
         return (
             <div className="text-center py-10">
-                <h1 className="text-2xl font-bold">Access Denied</h1>
-                <p className="text-secondary">This page is only available to lawyers.</p>
+                <h1 className="text-2xl font-bold">Truy cập bị từ chối</h1>
+                <p className="text-secondary">Trang này chỉ dành cho luật sư.</p>
             </div>
         );
     }

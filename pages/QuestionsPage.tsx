@@ -23,10 +23,10 @@ const QuestionDetail: React.FC<{ questionId: string }> = ({ questionId }) => {
                     setQuestion(q);
                     setAnswer(q.answer || '');
                 } else {
-                    setError("Question not found.");
+                    setError("Không tìm thấy câu hỏi.");
                 }
             } catch (err) {
-                setError("Failed to fetch question details.");
+                setError("Không thể tải chi tiết câu hỏi.");
             } finally {
                 setLoading(false);
             }
@@ -41,25 +41,25 @@ const QuestionDetail: React.FC<{ questionId: string }> = ({ questionId }) => {
             alert('Answer submitted successfully!');
             navigate('/app/questions');
         } catch (err: any) {
-            setError(err.message || 'Failed to submit answer.');
+            setError(err.message || 'Không thể gửi trả lời.');
         }
     };
 
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error) return <p className="text-red-500">{error}</p>;
-    if (!question) return <p>Question not found.</p>;
+    if (!question) return <p>Không tìm thấy câu hỏi.</p>;
 
     return (
         <div>
-            <Link to="/app/questions" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all questions</Link>
+            <Link to="/app/questions" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách câu hỏi</Link>
             <Card className="p-6">
                 <div>
-                    <p className="text-sm text-secondary mb-2">From: {question.questionerName} | Received: {new Date(question.createdAt).toLocaleString()}</p>
+                    <p className="text-sm text-secondary mb-2">Từ: {question.questionerName} | Nhận được: {new Date(question.createdAt).toLocaleString()}</p>
                     <h2 className="text-2xl font-semibold text-primary mb-4">Question:</h2>
                     <p className="text-primary whitespace-pre-wrap bg-background p-4 rounded-md">{question.content}</p>
 
                     <div className="mt-6">
-                        <Label htmlFor="answer">Your Answer</Label>
+                        <Label htmlFor="answer">Trả lời của bạn</Label>
                         <Textarea
                             id="answer"
                             rows={8}
@@ -73,7 +73,7 @@ const QuestionDetail: React.FC<{ questionId: string }> = ({ questionId }) => {
                     {!question.answer && (
                          <div className="mt-6 flex justify-end">
                             <Button onClick={handleSubmitAnswer} disabled={!answer.trim()}>
-                                Submit Answer
+                                Gửi trả lời
                             </Button>
                         </div>
                     )}
@@ -104,7 +104,7 @@ const QuestionList: React.FC = () => {
                 .sort((a,b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
             setQuestions(myQuestions);
         } catch (err: any) {
-            setError('Failed to fetch questions.');
+            setError('Không thể tải câu hỏi.');
         } finally {
             setLoading(false);
         }
@@ -116,7 +116,7 @@ const QuestionList: React.FC = () => {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-primary mb-8">Client Questions</h1>
+            <h1 className="text-3xl font-bold text-primary mb-8">Câu hỏi của khách hàng</h1>
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
                 <div className="space-y-4">
@@ -127,13 +127,13 @@ const QuestionList: React.FC = () => {
                                     <div className="flex justify-between items-center">
                                         <div>
                                             <p className="font-semibold text-primary truncate pr-4">{q.content}</p>
-                                            <p className="text-sm text-secondary">From: {q.questionerName} on {new Date(q.createdAt).toLocaleDateString()}</p>
+                                            <p className="text-sm text-secondary">Từ: {q.questionerName} vào {new Date(q.createdAt).toLocaleDateString()}</p>
                                         </div>
                                         <div>
                                             {q.answer ? (
-                                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Answered</span>
+                                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">Đã trả lời</span>
                                             ) : (
-                                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Pending</span>
+                                                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium">Chờ xử lý</span>
                                             )}
                                         </div>
                                     </div>
@@ -141,7 +141,7 @@ const QuestionList: React.FC = () => {
                             </Link>
                         ))
                     ) : (
-                        <p className="text-center text-secondary py-16">You have no questions assigned to you.</p>
+                        <p className="text-center text-secondary py-16">Bạn không có câu hỏi nào.</p>
                     )}
                 </div>
             )}
@@ -156,8 +156,8 @@ const QuestionsPage: React.FC = () => {
     if (!isLawyer) {
         return (
             <div className="text-center py-10">
-                <h1 className="text-2xl font-bold">Access Denied</h1>
-                <p className="text-secondary">This page is only available to lawyers.</p>
+                <h1 className="text-2xl font-bold">Truy cập bị từ chối</h1>
+                <p className="text-secondary">Trang này chỉ dành cho luật sư.</p>
             </div>
         );
     }

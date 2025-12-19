@@ -32,7 +32,7 @@ export const BookingModal: React.FC<{
                     setLawyerId(lawyerList[0].id.toString());
                 }
             } catch (err) {
-                setError('Failed to load lawyers list.');
+                setError('Không thể tải danh sách luật sư.');
             } finally {
                 setLoading(false);
             }
@@ -68,7 +68,7 @@ export const BookingModal: React.FC<{
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.message || 'Failed to book appointment.');
+            setError(err.message || 'Không thể đăng ký lịch hẹn.');
         }
     };
     
@@ -109,7 +109,7 @@ export const BookingModal: React.FC<{
     const timeSlots = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00"];
 
     return (
-        <Modal isOpen={true} onClose={onClose} title="Book an Appointment">
+        <Modal isOpen={true} onClose={onClose} title="Đặt lịch hẹn">
             {loading ? <Spinner /> : (
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {error && <p className="text-red-500 text-sm">{error}</p>}
@@ -157,19 +157,19 @@ export const BookingModal: React.FC<{
                                 </div>
                             ) : (
                                 <div className="flex items-center justify-center h-full bg-background rounded-lg">
-                                    <p className="text-sm text-secondary">Select a date first</p>
+                                    <p className="text-sm text-secondary">Chọn ngày trước</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
                     <div>
-                        <Label htmlFor="notes">Notes (optional)</Label>
+                        <Label htmlFor="notes">Ghi chú (tùy chọn)</Label>
                         <Textarea id="notes" value={notes} onChange={e => setNotes(e.target.value)} rows={3} />
                     </div>
                     <div className="flex justify-end gap-4 pt-4 border-t border-border">
-                        <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
-                        <Button type="submit">Book Appointment</Button>
+                        <Button type="button" variant="secondary" onClick={onClose}>Hủy</Button>
+                        <Button type="submit">Đặt lịch hẹn</Button>
                     </div>
                 </form>
             )}
@@ -199,7 +199,7 @@ const MyAppointmentsPage: React.FC = () => {
                 .sort((a, b) => new Date(a.appointmentTime.replace(' ', 'T')).getTime() - new Date(b.appointmentTime.replace(' ', 'T')).getTime());
             setAppointments(myAppointments);
         } catch (err: any) {
-            setError('Failed to fetch your appointments.');
+            setError('Không thể tải lịch hẹn của bạn.');
         } finally {
             setLoading(false);
         }
@@ -225,8 +225,8 @@ const MyAppointmentsPage: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">My Appointments</h1>
-                <Button onClick={() => setIsModalOpen(true)}><PlusIcon /> Book Appointment</Button>
+                <h1 className="text-3xl font-bold text-primary">Lịch hẹn của tôi</h1>
+                <Button onClick={() => setIsModalOpen(true)}><PlusIcon /> Đặt lịch hẹn</Button>
             </div>
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             {loading ? <div className="flex justify-center"><Spinner /></div> : (
@@ -236,11 +236,11 @@ const MyAppointmentsPage: React.FC = () => {
                             <Card key={a.id} className="p-4">
                                 <div className="flex justify-between items-start">
                                     <div>
-                                        <p className="font-semibold text-primary">Appointment with {a.lawyerName}</p>
+                                        <p className="font-semibold text-primary">Lịch hẹn với {a.lawyerName}</p>
                                         <p className="text-sm text-secondary">
                                             {formatDateTime(a.appointmentTime)}
                                         </p>
-                                        {a.notes && <p className="text-sm text-primary mt-2 pt-2 border-t border-border">Notes: {a.notes}</p>}
+                                        {a.notes && <p className="text-sm text-primary mt-2 pt-2 border-t border-border">Ghi chú: {a.notes}</p>}
                                     </div>
                                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(a.status)}`}>{a.status}</span>
                                 </div>
@@ -248,7 +248,7 @@ const MyAppointmentsPage: React.FC = () => {
                         ))
                     ) : (
                         <Card className="text-center p-16">
-                            <p className="text-secondary">You have no appointments scheduled.</p>
+                            <p className="text-secondary">Bạn chưa có lịch hẹn nào.</p>
                         </Card>
                     )}
                 </div>

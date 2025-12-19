@@ -69,7 +69,7 @@ const CaseForm: React.FC<{
                 if (error.message && error.message.toLowerCase().includes('foreign key constraint fails')) {
                     alert('Cannot delete this file. It may be referenced by other records (e.g., audit logs).');
                 } else {
-                    alert('Failed to delete file.');
+                    alert('Không thể xoá tập tin.');
                 }
             }
         }
@@ -84,38 +84,38 @@ const CaseForm: React.FC<{
         <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div>
-                    <Label htmlFor="caseName">Case Name</Label>
+                    <Label htmlFor="caseName">Tên vụ việc</Label>
                     <Input id="caseName" name="caseName" value={formData.caseName} onChange={handleChange} required />
                 </div>
                  <div>
-                    <Label htmlFor="status">Status</Label>
+                    <Label htmlFor="status">Trạng thái</Label>
                     <Input id="status" name="status" value={formData.status || ''} onChange={handleChange} required />
                 </div>
                  <div>
-                    <Label htmlFor="courtName">Court Name</Label>
+                    <Label htmlFor="courtName">Tên tòa án</Label>
                     <Input id="courtName" name="courtName" value={formData.courtName || ''} onChange={handleChange} />
                 </div>
                 <div>
-                    <Label htmlFor="location">Location</Label>
+                    <Label htmlFor="location">Vị trí</Label>
                     <Input id="location" name="location" value={formData.location || ''} onChange={handleChange} />
                 </div>
                 <div className="md:col-span-2">
-                    <Label htmlFor="categoryId">Category</Label>
+                    <Label htmlFor="categoryId">Danh mục</Label>
                     <Select id="categoryId" name="categoryId" value={formData.categoryId} onChange={handleChange} required>
                         {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                     </Select>
                 </div>
                 <div className="md:col-span-2">
-                    <Label htmlFor="caseDescription">Description</Label>
+                    <Label htmlFor="caseDescription">Mô tả</Label>
                     <Textarea id="caseDescription" name="caseDescription" value={formData.caseDescription || ''} onChange={handleChange} rows={4} />
                 </div>
             </div>
             
             <div className="space-y-4 pt-4 border-t border-border">
-                <Label>Case Files</Label>
+                <Label>Tập tin hồ sơ</Label>
                  {existingFiles.length > 0 && (
                     <div className="space-y-2">
-                        <p className="text-sm font-medium text-secondary">Existing Files:</p>
+                        <p className="text-sm font-medium text-secondary">Các tập tin hiện có:</p>
                         <ul className="space-y-2">
                             {existingFiles.map(file => (
                                 <li key={file.id} className="flex justify-between items-center text-sm p-2 bg-background rounded-md">
@@ -127,7 +127,7 @@ const CaseForm: React.FC<{
                     </div>
                 )}
                 <div>
-                     <Label htmlFor="files" className="text-sm font-medium text-secondary">Add New Files (PDF only):</Label>
+                     <Label htmlFor="files" className="text-sm font-medium text-secondary">Thêm tập tin mới (Chỉ PDF):</Label>
                      <Input id="files" type="file" multiple accept=".pdf" onChange={handleFileChange} />
                      {fileError && <p className="text-red-500 text-sm mt-1">{fileError}</p>}
                 </div>
@@ -144,8 +144,8 @@ const CaseForm: React.FC<{
             </div>
 
             <div className="flex justify-end gap-4 pt-6 border-t border-border">
-                <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Case</Button>
+                <Button type="button" variant="secondary" onClick={onCancel}>Hủy</Button>
+                <Button type="submit">Lưu vụ việc</Button>
             </div>
         </form>
     );
@@ -187,7 +187,7 @@ const ManageCasePersonsModal: React.FC<{
             setAssociatedPersonIds(prev => new Set(prev).add(personId));
             setPersonToAssign('');
         } catch (error) {
-            alert('Failed to assign person.');
+            alert('Không thể gán đương sự.');
         }
     };
 
@@ -200,7 +200,7 @@ const ManageCasePersonsModal: React.FC<{
                 return newSet;
             });
         } catch (error) {
-            alert('Failed to remove person.');
+            alert('Không thể gỡ bỏ đương sự.');
         }
     };
 
@@ -208,36 +208,36 @@ const ManageCasePersonsModal: React.FC<{
     const unassociatedPersons = allPersons.filter(p => !associatedPersonIds.has(p.id));
     
     return (
-        <Modal isOpen={true} onClose={onClose} title={`Manage Persons for ${caseItem.caseName}`}>
+        <Modal isOpen={true} onClose={onClose} title={`Quản lý đương sự cho ${caseItem.caseName}`}>
             {loading ? <Spinner /> : (
                 <div className="space-y-6">
                     <div>
-                        <h3 className="font-semibold mb-2">Associated Persons</h3>
+                        <h3 className="font-semibold mb-2">Các đương sự liên quan</h3>
                         <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
                             {associatedPersons.length > 0 ? associatedPersons.map(p => (
                                 <div key={p.id} className="flex justify-between items-center p-2 bg-background rounded">
                                     <span>{p.name} <span className="text-xs text-secondary">({p.role})</span></span>
-                                    <Button variant="danger" onClick={() => handleRemovePerson(p.id)} className="px-2 py-1 text-xs">Remove</Button>
+                                    <Button variant="danger" onClick={() => handleRemovePerson(p.id)} className="px-2 py-1 text-xs">Gỡ bỏ</Button>
                                 </div>
-                            )) : <p className="text-secondary text-sm">No persons assigned yet.</p>}
+                            )) : <p className="text-secondary text-sm">Chưa có đương sự nào được gán.</p>}
                         </div>
                     </div>
 
                     <div className="border-t border-border pt-4">
-                        <h3 className="font-semibold mb-2">Assign New Person</h3>
+                        <h3 className="font-semibold mb-2">Gán đương sự mới</h3>
                         <div className="flex gap-2">
                             <Select value={personToAssign} onChange={e => setPersonToAssign(e.target.value)} className="flex-grow">
-                                <option value="">Select a person...</option>
+                                <option value="">Chọn một đương sự...</option>
                                 {unassociatedPersons.map(p => (
                                     <option key={p.id} value={p.id}>{p.name} ({p.role})</option>
                                 ))}
                             </Select>
-                            <Button onClick={handleAddPerson} disabled={!personToAssign}>Add</Button>
+                            <Button onClick={handleAddPerson} disabled={!personToAssign}>Thêm</Button>
                         </div>
                     </div>
                     
                     <div className="flex justify-end pt-4">
-                        <Button variant="primary" onClick={() => { onSave(); onClose(); }}>Done</Button>
+                        <Button variant="primary" onClick={() => { onSave(); onClose(); }}>Xong</Button>
                     </div>
                 </div>
             )}
@@ -295,19 +295,19 @@ const UploadFileModal: React.FC<{
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.message || 'Failed to upload file.');
+            setError(err.message || 'Không thể tải lên tập tin.');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <Modal isOpen={true} onClose={onClose} title={`Upload File to ${caseItem.caseName}`}>
+        <Modal isOpen={true} onClose={onClose} title={`Tải lên tập tin cho ${caseItem.caseName}`}>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <Label htmlFor="file-upload">Select File</Label>
+                    <Label htmlFor="file-upload">Chọn tập tin</Label>
                     <Input id="file-upload" type="file" accept=".pdf" onChange={handleFileChange} />
-                    <p className="text-xs text-secondary mt-1">Maximum file size: 200MB. Only PDF files are allowed.</p>
+                    <p className="text-xs text-secondary mt-1">Kích thước tập tin tối đa: 200MB. Chỉ cho phép các tập tin PDF.</p>
                 </div>
                 {error && <p className="text-red-500 text-sm">{error}</p>}
                 {selectedFile && !error && (
@@ -367,7 +367,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
             setAssociatedPersons(allPersons.filter(p => personIdsForCase.includes(p.id)));
 
         } catch (e: any) {
-            setError("Failed to load case details.");
+            setError("Không thể tải chi tiết vụ việc.");
         } finally {
             setLoading(false);
         }
@@ -379,7 +379,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
     }, [fetchAllData]);
 
     const handleDeleteFile = async (fileId: number) => {
-        if (window.confirm('Are you sure you want to permanently delete this file? This action cannot be undone.')) {
+        if (window.confirm('Bạn có chắc chắn muốn xóa vĩnh viễn tập tin này không? Hành động này không thể được hoàn tác.')) {
             setError('');
             try {
                 await api.deleteCaseFile(fileId);
@@ -389,7 +389,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                 if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
                     setError('Cannot delete this file. It may be referenced by other records (e.g., audit logs).');
                 } else {
-                    setError(err.message || 'Failed to delete the file.');
+                    setError(err.message || 'Không thể xoá tập tin.');
                 }
             }
         }
@@ -401,7 +401,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (!response.ok) throw new Error('Failed to preview file');
+            if (!response.ok) throw new Error('Không thể xem trước tập tin');
             const blob = await response.blob();
             const pdfBlob = new Blob([blob], { type: 'application/pdf' });
             const url = window.URL.createObjectURL(pdfBlob);
@@ -410,7 +410,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
             setIsPreviewOpen(true);
         } catch (error) {
             console.error(error);
-            alert('Error previewing file');
+            alert('Lỗi khi xem trước tập tin');
         }
     };
     
@@ -447,7 +447,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
 
     if (loading) return <div className="flex justify-center mt-10"><Spinner /></div>;
     if (error && !isPreviewOpen) return <p className="text-red-500">{error}</p>;
-    if (!caseItem) return <p>Case not found.</p>;
+    if (!caseItem) return <p>Không tìm thấy vụ việc.</p>;
 
     const groupedPersons = associatedPersons.reduce((acc, person) => {
         const role = person.role;
@@ -461,12 +461,12 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
 
     return (
         <div>
-            <Link to="/app/cases" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Back to all cases</Link>
+            <Link to="/app/cases" className="text-accent hover:underline mb-6 inline-block font-semibold">&larr; Quay lại danh sách vụ việc</Link>
             {error && <p className="text-red-500 bg-red-100 p-3 rounded-md mb-4">{error}</p>}
             <div className="flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-4xl font-bold text-primary mb-2">{caseItem.caseName}</h1>
-                    <p className="text-secondary">Details for case ID: {caseItem.id}</p>
+                    <p className="text-secondary">Chi tiết vụ việc ID: {caseItem.id}</p>
                 </div>
                  <span className="px-3 py-1.5 bg-teal-100 text-teal-800 rounded-full text-sm font-medium">{caseItem.status}</span>
             </div>
@@ -475,10 +475,10 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 space-y-8">
                     <Card className="p-6">
-                        <h2 className="text-2xl font-semibold mb-4 text-primary">Case Information</h2>
+                        <h2 className="text-2xl font-semibold mb-4 text-primary">Thông tin vụ việc</h2>
                         <div className="space-y-4 text-primary text-md">
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <p><strong className="font-semibold text-secondary block mb-1">Court:</strong> {caseItem.courtName || 'N/A'}</p>
+                                <p><strong className="font-semibold text-secondary block mb-1">Tòa án:</strong> {caseItem.courtName || 'N/A'}</p>
                                 <p><strong className="font-semibold text-secondary block mb-1">Location:</strong> {caseItem.location || 'N/A'}</p>
                                 <p><strong className="font-semibold text-secondary block mb-1">Category:</strong> {category?.name || 'N/A'}</p>
                            </div>
@@ -487,7 +487,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                     </Card>
                      <Card className="p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold text-primary">Associated Persons</h2>
+                            <h2 className="text-2xl font-semibold text-primary">Các đượng sự liên quan</h2>
                             {isAdmin && <Button variant="secondary" onClick={() => setIsManagePersonsModalOpen(true)}>Manage</Button>}
                         </div>
                         <div className="space-y-4">
@@ -499,14 +499,14 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                                     </ul>
                                 </div>
                             ))}
-                            {associatedPersons.length === 0 && <p className="text-secondary">No persons associated with this case.</p>}
+                            {associatedPersons.length === 0 && <p className="text-secondary">Không có đượng sự nào liên quan đến vụ việc này.</p>}
                         </div>
                     </Card>
 
                     <Card className="p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-2xl font-semibold text-primary">Case Files</h2>
-                             {isAdmin && <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}><PlusIcon/> Upload File</Button>}
+                            <h2 className="text-2xl font-semibold text-primary">Tập tin hồ sơ</h2>
+                             {isAdmin && <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}><PlusIcon/> Tải lên tập tin</Button>}
                         </div>
                         {files.length > 0 ? (
                             <ul className="space-y-3">
@@ -525,7 +525,7 @@ const CaseDetail: React.FC<{ caseId: string }> = ({ caseId }) => {
                                     </li>
                                 ))}
                             </ul>
-                        ) : <p className="text-secondary">No files associated with this case.</p>}
+                        ) : <p className="text-secondary">Không có tập tin nào liên quan đến vụ việc này.</p>}
                     </Card>
                 </div>
 
@@ -587,7 +587,7 @@ const CaseList: React.FC = () => {
             setCategories(categoriesData);
             setError('');
         } catch (err: any) {
-            setError('Failed to fetch data.');
+            setError('Không thể tải dữ liệu.');
         } finally {
             setLoading(false);
         }
@@ -644,21 +644,21 @@ const CaseList: React.FC = () => {
             handleCloseModal();
             fetchCasesAndCategories();
         } catch (err: any) {
-            setError(err.message || 'Failed to save case.');
+            setError(err.message || 'Không thể lưu vụ việc.');
         }
     };
 
     const handleDelete = async (id: number) => {
-        if (window.confirm('Are you sure you want to delete this case? This action cannot be undone.')) {
+        if (window.confirm('Bạn có chắc chắn muốn xoá vụ việc này không? Hành động này không thể được hoàn tác.')) {
             setError('');
             try {
                 await api.deleteCase(id);
                 fetchCasesAndCategories();
             } catch (err: any) {
                 if (err.message && err.message.toLowerCase().includes('foreign key constraint fails')) {
-                    setError('Cannot delete this case. It has associated files or persons. Please remove them before deleting the case.');
+                    setError('Không thể xoá vụ việc này. Nó có các tập tin hoặc đượng sự liên kết. Vui lòng gỡ bỏ chúng trước khi xoá vụ việc.');
                 } else {
-                    setError(err.message || 'Failed to delete case.');
+                    setError(err.message || 'Không thể xoá vụ việc.');
                 }
             }
         }
@@ -682,19 +682,19 @@ const CaseList: React.FC = () => {
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-primary">Cases</h1>
-                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon /> Add New Case</Button>}
+                <h1 className="text-3xl font-bold text-primary">Vụ việc</h1>
+                 {isAdmin && <Button onClick={() => handleOpenModal()}><PlusIcon /> Thêm vụ việc mới</Button>}
             </div>
 
             <Card className="mb-8 p-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Input name="search" placeholder="Search by name or court..." value={filters.search} onChange={handleFilterChange} />
+                    <Input name="search" placeholder="Tìm kiếm theo tên hoặc tòa án..." value={filters.search} onChange={handleFilterChange} />
                     <Select name="category" value={filters.category} onChange={handleFilterChange}>
-                        <option value="all">All Categories</option>
+                        <option value="all">Tất cả danh mục</option>
                         {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
                     </Select>
                     <Select name="status" value={filters.status} onChange={handleFilterChange}>
-                        <option value="all">All Statuses</option>
+                        <option value="all">Tất cả trạng thái</option>
                         {uniqueStatuses.map(status => <option key={status} value={status}>{status}</option>)}
                     </Select>
                 </div>
@@ -720,23 +720,23 @@ const CaseList: React.FC = () => {
                                     <p className="text-sm text-secondary mb-4">
                                         <span className="font-medium">{categories.find(c => c.id === caseItem.categoryId)?.name || 'N/A'}</span>
                                         <span className="mx-2">&middot;</span>
-                                        <span>Court: {caseItem.courtName}</span>
+                                        <span>Tòa án: {caseItem.courtName}</span>
                                     </p>
                                 </div>
                                 <div className="mt-4 pt-4 border-t border-border flex justify-between items-center">
                                      <span className="px-2 py-1 bg-teal-100 text-teal-800 rounded-full text-xs font-medium">{caseItem.status}</span>
-                                    <Link to={`/app/cases/${caseItem.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">View Details &rarr;</Link>
+                                    <Link to={`/app/cases/${caseItem.id}`} className="text-sm font-semibold text-accent opacity-75 group-hover:opacity-100 group-hover:underline transition-all">Xem chi tiết &rarr;</Link>
                                 </div>
                             </Card>
                         ))}
                     </div>
                 ) : (
                     <div className="text-center py-16">
-                        <p className="text-secondary">No cases found matching your criteria.</p>
+                        <p className="text-secondary">Không tìm thấy vụ việc nào phù hợp với tiêu chí tìm kiếm của bạn.</p>
                     </div>
                 )
             )}
-            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCase ? 'Edit Case' : 'Add New Case'}>
+            <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingCase ? 'Chỉnh sửa vụ việc' : 'Thêm vụ việc mới'}>
                 <CaseForm
                     initialData={editingCase}
                     categories={categories}

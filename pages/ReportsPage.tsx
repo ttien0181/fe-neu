@@ -91,9 +91,9 @@ const ReportsPage: React.FC = () => {
     const getStats = () => {
         const caseStats = {
             total: filteredCases.length,
-            processing: filteredCases.filter(c => c.status === 'Processing' || c.status === 'OPEN').length,
-            completed: filteredCases.filter(c => c.status === 'Completed' || c.status === 'CLOSED').length,
-            waiting: filteredCases.filter(c => c.status === 'Waiting' || c.status === 'PENDING').length,
+            processing: filteredCases.filter(c => c.status === 'Đang xét xử' || c.status === 'OPEN').length,
+            completed: filteredCases.filter(c => c.status === 'Đã giải quyết' || c.status === 'CLOSED').length,
+            waiting: filteredCases.filter(c => c.status === 'Đang thụ lý' || c.status === 'PENDING').length,
         };
         const apptStats = {
             total: filteredAppointments.length,
@@ -148,7 +148,7 @@ const ReportsPage: React.FC = () => {
                 updated: formatDate(c.updatedAt)
             }));
         } else if (activeTab === 'APPOINTMENTS') {
-            headers = ['STT', 'Appt ID', 'Client', 'Lawyer', 'Time', 'Status', 'Notes'];
+            headers = ['STT', 'Mã cuộc hẹn', 'Khách hàng', 'Luật sư', 'Thời gian', 'Trạng thái', 'Ghi chú'];
             data = filteredAppointments.map((a, idx) => ({
                 stt: idx + 1,
                 id: a.id,
@@ -159,7 +159,7 @@ const ReportsPage: React.FC = () => {
                 notes: a.notes
             }));
         } else if (activeTab === 'QUESTIONS') {
-             headers = ['STT', 'Q ID', 'Client', 'Lawyer', 'Asked Date', 'Status', 'Question', 'Answer'];
+             headers = ['STT', 'Mã câu hỏi', 'Khách hàng', 'Luật sư', 'Thời gian', 'Trạng thái', 'Câu hỏi', 'Câu trả lời'];
              data = filteredQuestions.map((q, idx) => ({
                 stt: idx + 1,
                 id: q.id,
@@ -270,13 +270,13 @@ const ReportsPage: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center print:hidden">
-                <h1 className="text-3xl font-bold text-primary">Reports & Analytics</h1>
+                <h1 className="text-3xl font-bold text-primary">Báo cáo & Phân tích</h1>
                 <div className="flex gap-2">
                     <Button onClick={handleExportExcel} variant="secondary">
-                        <DownloadIcon /> Export Excel (CSV)
+                        <DownloadIcon /> Xuất Excel (CSV)
                     </Button>
                     <Button onClick={handlePrint} variant="primary">
-                        <DownloadIcon /> Print / Save PDF
+                        <DownloadIcon /> Xuất PDF
                     </Button>
                 </div>
             </div>
@@ -285,25 +285,25 @@ const ReportsPage: React.FC = () => {
             <Card className="p-4 print:hidden">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div>
-                        <Label>From Date</Label>
+                        <Label>Từ ngày</Label>
                         <Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} />
                     </div>
                     <div>
-                        <Label>To Date</Label>
+                        <Label>Đến ngày</Label>
                         <Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} />
                     </div>
                     <div>
-                        <Label>Report Type</Label>
+                        <Label>Loại báo cáo</Label>
                         <Select value={activeTab} onChange={e => setActiveTab(e.target.value as ReportType)}>
-                            <option value="DASHBOARD">Dashboard (KPIs)</option>
-                            <option value="CASES">01_Cases_Report</option>
-                            <option value="APPOINTMENTS">03_Appointments_Report</option>
-                            <option value="QUESTIONS">04_Questions_Report</option>
-                            <option value="PERSONS">05_Persons_Report</option>
+                            <option value="DASHBOARD">Tổng quan</option>
+                            <option value="CASES">01_Báo cáo vụ việc</option>
+                            <option value="APPOINTMENTS">03_Báo cáo lịch hẹn</option>
+                            <option value="QUESTIONS">04_Báo cáo hỏi đáp</option>
+                            <option value="PERSONS">05_Báo cáo Đương sự</option>
                         </Select>
                     </div>
                     <div className="flex gap-2">
-                        <Button variant="secondary" onClick={() => { setStartDate(''); setEndDate(''); }} className="w-full">Clear</Button>
+                        <Button variant="secondary" onClick={() => { setStartDate(''); setEndDate(''); }} className="w-full">Xoá lọc</Button>
                     </div>
                 </div>
             </Card>
@@ -314,48 +314,48 @@ const ReportsPage: React.FC = () => {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 print:grid-cols-3">
                     <Card className="p-4 print:border print:border-gray-400 print:shadow-none">
-                        <h3 className="font-bold text-lg mb-2 text-center">Cases Overview</h3>
+                        <h3 className="font-bold text-lg mb-2 text-center">Tổng quan các vụ việc</h3>
                         <div className="overflow-x-auto">
                             <table className="min-w-full text-sm">
                                 <thead>
                                     <tr className="border-b"><th className="text-left py-1">State</th><th className="text-right py-1">Count</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>Processing</td><td className="text-right">{stats.caseStats.processing}</td></tr>
-                                    <tr><td>Completed</td><td className="text-right">{stats.caseStats.completed}</td></tr>
-                                    <tr><td>Waiting</td><td className="text-right">{stats.caseStats.waiting}</td></tr>
+                                    <tr><td>Đang xử lý</td><td className="text-right">{stats.caseStats.processing}</td></tr>
+                                    <tr><td>Đã hoàn thành</td><td className="text-right">{stats.caseStats.completed}</td></tr>
+                                    <tr><td>Đang chờ</td><td className="text-right">{stats.caseStats.waiting}</td></tr>
                                     <tr className="font-bold border-t"><td>Total</td><td className="text-right">{stats.caseStats.total}</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </Card>
                     <Card className="p-4 print:border print:border-gray-400 print:shadow-none">
-                        <h3 className="font-bold text-lg mb-2 text-center">Appointments Overview</h3>
+                        <h3 className="font-bold text-lg mb-2 text-center">Tổng quan lịch hẹn</h3>
                          <div className="overflow-x-auto">
                             <table className="min-w-full text-sm">
                                 <thead>
-                                    <tr className="border-b"><th className="text-left py-1">State</th><th className="text-right py-1">Count</th></tr>
+                                    <tr className="border-b"><th className="text-left py-1">Trạng thái</th><th className="text-right py-1">Số lượng</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>Pending</td><td className="text-right">{stats.apptStats.pending}</td></tr>
-                                    <tr><td>Approved</td><td className="text-right">{stats.apptStats.approved}</td></tr>
-                                    <tr><td>Cancelled</td><td className="text-right">{stats.apptStats.cancelled}</td></tr>
-                                    <tr className="font-bold border-t"><td>Total</td><td className="text-right">{stats.apptStats.total}</td></tr>
+                                    <tr><td>Chờ xử lý</td><td className="text-right">{stats.apptStats.pending}</td></tr>
+                                    <tr><td>Được chấp thuận</td><td className="text-right">{stats.apptStats.approved}</td></tr>
+                                    <tr><td>Đã hủy</td><td className="text-right">{stats.apptStats.cancelled}</td></tr>
+                                    <tr className="font-bold border-t"><td>Tổng cộng</td><td className="text-right">{stats.apptStats.total}</td></tr>
                                 </tbody>
                             </table>
                         </div>
                     </Card>
                     <Card className="p-4 print:border print:border-gray-400 print:shadow-none">
-                        <h3 className="font-bold text-lg mb-2 text-center">Questions Overview</h3>
+                        <h3 className="font-bold text-lg mb-2 text-center">Tổng quan câu hỏi</h3>
                          <div className="overflow-x-auto">
                             <table className="min-w-full text-sm">
                                 <thead>
-                                    <tr className="border-b"><th className="text-left py-1">State</th><th className="text-right py-1">Count</th></tr>
+                                    <tr className="border-b"><th className="text-left py-1">Trạng thái</th><th className="text-right py-1">Số lượng</th></tr>
                                 </thead>
                                 <tbody>
-                                    <tr><td>Pending</td><td className="text-right">{stats.questStats.pending}</td></tr>
-                                    <tr><td>Answered</td><td className="text-right">{stats.questStats.answered}</td></tr>
-                                    <tr className="font-bold border-t"><td>Total</td><td className="text-right">{stats.questStats.total}</td></tr>
+                                    <tr><td>Chờ xử lý</td><td className="text-right">{stats.questStats.pending}</td></tr>
+                                    <tr><td>Đã trả lời</td><td className="text-right">{stats.questStats.answered}</td></tr>
+                                    <tr className="font-bold border-t"><td>Tổng cộng</td><td className="text-right">{stats.questStats.total}</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -364,7 +364,7 @@ const ReportsPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
                     <Card className="p-6 h-80">
-                         <h3 className="font-bold mb-4">Cases by Category</h3>
+                         <h3 className="font-bold mb-4">Vụ việc theo danh mục</h3>
                          <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={categories.map(c => ({ name: c.name, count: filteredCases.filter(k => k.categoryId === c.id).length }))}>
                                 <CartesianGrid strokeDasharray="3 3" />
@@ -376,18 +376,18 @@ const ReportsPage: React.FC = () => {
                         </ResponsiveContainer>
                     </Card>
                     <Card className="p-6 h-80">
-                         <h3 className="font-bold mb-4">Appointments Status</h3>
+                         <h3 className="font-bold mb-4">Trạng thái lịch hẹn</h3>
                           <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie 
                                         data={[
-                                            { name: 'Pending', value: stats.apptStats.pending },
-                                            { name: 'Approved', value: stats.apptStats.approved },
-                                            { name: 'Cancelled', value: stats.apptStats.cancelled },
+                                            { name: 'Chờ xử lý', value: stats.apptStats.pending },
+                                            { name: 'Được chấp thuận', value: stats.apptStats.approved },
+                                            { name: 'Đã hủy', value: stats.apptStats.cancelled },
                                         ]} 
                                         cx="50%" cy="50%" outerRadius={80} fill="#8884d8" dataKey="value" label
                                     >
-                                        {['Pending', 'Approved', 'Cancelled'].map((entry, index) => (
+                                        {['Chờ xử lý', 'Được chấp thuận', 'Đã hủy'].map((entry, index) => (
                                             <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
                                         ))}
                                     </Pie>
@@ -405,7 +405,7 @@ const ReportsPage: React.FC = () => {
                 <PrintHeader title="BÁO CÁO TÌNH TRẠNG XỬ LÝ HỒ SƠ VỤ VIỆC" />
                 <Card className="overflow-hidden print:shadow-none print:border-0">
                     <table className="min-w-full text-xs md:text-sm border-collapse border border-gray-300 print:border-gray-500">
-                        <TableHeader cols={['STT', 'Case_ID', 'Case Name', 'Category', 'Status', 'Court/Loc', 'Created', 'Updated']} />
+                        <TableHeader cols={['STT', 'Mã vụ việc', 'Tên vụ việc', 'Danh mục', 'Trạng thái', 'Tòa án/Địa điểm', 'Ngày tạo', 'Ngày cập nhật']} />
                         <tbody>
                             {filteredCases.map((c, idx) => (
                                 <tr key={c.id} className="border border-gray-300 print:border-gray-500 hover:bg-gray-50 print:break-inside-avoid">
@@ -430,7 +430,7 @@ const ReportsPage: React.FC = () => {
                 <PrintHeader title="BÁO CÁO LỊCH HẸN TƯ VẤN" />
                 <Card className="overflow-hidden print:shadow-none print:border-0">
                     <table className="min-w-full text-xs md:text-sm border-collapse border border-gray-300 print:border-gray-500">
-                        <TableHeader cols={['STT', 'Appt_ID', 'Client', 'Lawyer', 'Time', 'Status', 'Notes']} />
+                        <TableHeader cols={['STT', 'Mã lịch hẹn', 'Khách hàng', 'Luật sư', 'Thời gian', 'Trạng thái', 'Ghi chú']} />
                         <tbody>
                             {filteredAppointments.map((a, idx) => (
                                 <tr key={a.id} className="border border-gray-300 print:border-gray-500 hover:bg-gray-50 print:break-inside-avoid">
@@ -454,7 +454,7 @@ const ReportsPage: React.FC = () => {
                 <PrintHeader title="BÁO CÁO HỎI – ĐÁP TƯ VẤN" />
                 <Card className="overflow-hidden print:shadow-none print:border-0">
                     <table className="min-w-full text-xs md:text-sm border-collapse border border-gray-300 print:border-gray-500">
-                        <TableHeader cols={['STT', 'Q_ID', 'Client', 'Lawyer', 'Asked Date', 'Status', 'Question']} />
+                        <TableHeader cols={['STT', 'Mã câu hỏi', 'Khách hàng', 'Luật sư', 'Ngày hỏi', 'Trạng thái', 'Câu hỏi']} />
                         <tbody>
                             {filteredQuestions.map((q, idx) => (
                                 <tr key={q.id} className="border border-gray-300 print:border-gray-500 hover:bg-gray-50 print:break-inside-avoid">
@@ -464,7 +464,7 @@ const ReportsPage: React.FC = () => {
                                     <td className="px-3 py-2 border border-gray-300 print:border-gray-500">{q.lawyerName || '-'}</td>
                                     <td className="px-3 py-2 border border-gray-300 print:border-gray-500 whitespace-nowrap">{formatDateTime(q.createdAt)}</td>
                                     <td className="px-3 py-2 border border-gray-300 print:border-gray-500">
-                                        {q.answer ? <span className="text-green-600 font-bold print:text-black">Answered</span> : <span className="text-yellow-600 font-bold print:text-black">Pending</span>}
+                                        {q.answer ? <span className="text-green-600 font-bold print:text-black">Đã trả lời</span> : <span className="text-yellow-600 font-bold print:text-black">Chờ xử lý</span>}
                                     </td>
                                     <td className="px-3 py-2 border border-gray-300 print:border-gray-500 max-w-xs truncate">{q.content || '-'}</td>
                                 </tr>
@@ -477,10 +477,10 @@ const ReportsPage: React.FC = () => {
 
              {/* --- PERSONS REPORT --- */}
              <div className={activeTab === 'PERSONS' ? 'block' : 'hidden print:hidden'}>
-                <PrintHeader title="BÁO CÁO DANH SÁCH NHÂN SỰ/ĐỐI TƯỢNG (PERSONS)" />
+                <PrintHeader title="BÁO CÁO DANH SÁCH ĐƯƠNG SỰ" />
                 <Card className="overflow-hidden print:shadow-none print:border-0">
                     <table className="min-w-full text-xs md:text-sm border-collapse border border-gray-300 print:border-gray-500">
-                        <TableHeader cols={['STT', 'Person_ID', 'Name', 'Role', 'Contact Info']} />
+                        <TableHeader cols={['STT', 'Mã đương sự', 'Tên', 'Vai trò', 'Thông tin liên hệ']} />
                         <tbody>
                             {filteredPersons.map((p, idx) => (
                                 <tr key={p.id} className="border border-gray-300 print:border-gray-500 hover:bg-gray-50 print:break-inside-avoid">

@@ -179,7 +179,7 @@ const NavItems: React.FC<{onLinkClick?: () => void, isCollapsed: boolean}> = ({ 
         { to: "/app/dashboard", icon: <DashboardIcon />, label: "Tổng quan", show: true },
         { to: "/app/cases", icon: <CasesIcon />, label: "Vụ việc", show: true },
         { to: "/app/categories", icon: <CategoriesIcon />, label: "Danh mục", show: true },
-        { to: "/app/persons", icon: <PeopleIcon />, label: "Nhân sự", show: true },
+        { to: "/app/persons", icon: <PeopleIcon />, label: "Đương sự", show: true },
         { to: "/app/lawyers", icon: <UsersIcon />, label: "Luật sư", show: true },
         { to: "/app/reports", icon: <ReportIcon />, label: "Báo cáo", show: isAdmin },
         { to: "/app/my-questions", icon: <ChatBubbleIcon />, label: "Câu hỏi của tôi", show: !isLawyer },
